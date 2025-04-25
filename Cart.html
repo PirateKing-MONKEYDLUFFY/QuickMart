@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Cart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .cart-panel {
+            width: 400px;
+            background-color: white;
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 999;
+        }
+
+        .cart-header {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .cart-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-right: 15px;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-info p {
+            margin: 2px 0;
+        }
+
+        .qty {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .qty button {
+            width: 25px;
+            height: 25px;
+            font-weight: bold;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .qty span {
+            margin: 0 10px;
+        }
+
+        .bill-summary {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .bill-summary div {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .total-box {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .pay-btn {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .cancel-policy {
+            font-size: 12px;
+            margin-top: 10px;
+            color: #666;
+        }
+
+        /* Adjusted cart panel structure */
+        .cart-content {
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="cart-panel">
+        <div>
+            <div class="cart-header">My Cart</div>
+            <div class="cart-content">
+                <div id="cart-items"></div>
+
+                <div class="bill-summary">
+                    <div><span>Items total</span><span id="items-total">₹0</span></div>
+                    <div><span>Delivery charge</span><span id="delivery-charge">₹25</span></div>
+                    <div><span>Handling charge</span><span id="handling-charge">₹9</span></div>
+                    <div class="total-box"><span>Grand total</span><span id="grand-total">₹0</span></div>
+                </div>
+
+                <button class="pay-btn" id="pay-button">₹<span id="pay-total">0</span> - Login to Proceed</button>
+
+                <div class="cancel-policy">
+                    Orders cannot be cancelled once packed. Refunds are only provided in case of unexpected delays.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load cart items from localStorage - Check both storage formats
+        let cartItems = [];
+        
+        // First try to get items from 'cartItems' array format
+        const storedCartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        if (storedCartItems.length > 0) {
+            cartItems = storedCartItems;
+        } else {
+            // If no items in cartItems, check the 'cart' object format used by product pages
+            const productPageCart = JSON.parse(localStorage.getItem('cart')) || {};
+            
+            // Convert cart object to cartItems array format
+            for (const name in productPageCart) {
+                const item = productPageCart[name];
+                cartItems.push({
+                    name: name,
+                    price: item.price,
+                    quantity: item.qty,
+                    image: item.image,
+                    size: item.size
+                });
+            }
+            
+            // Save converted items to 'cartItems' for consistency
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        }
+        
+        const cartItemsContainer = document.getElementById('cart-items');
+        const itemsTotalEl = document.getElementById('items-total');
+        const grandTotalEl = document.getElementById('grand-total');
+        const payTotalEl = document.getElementById('pay-total');
+        const payButton = document.getElementById('pay-button');
+
+        // Force a re-check of login status when page loads
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        console.log("Login status:", isLoggedIn);
+        
+        // Update button text based on login status immediately
+        if (isLoggedIn) {
+            payButton.innerHTML = `₹<span id="pay-button-total">${payTotalEl.textContent}</span> - Proceed to Checkout`;
+        } else {
+            payButton.innerHTML = `₹<span id="pay-button-total">${payTotalEl.textContent}</span> - Login to Proceed`;
+        }
+
+        // Display cart items and calculate totals
+        function renderCart() {
+            let itemsTotal = 0;
+            
+            // Clear cart items container
+            cartItemsContainer.innerHTML = '';
+            
+            if (cartItems.length === 0) {
+                cartItemsContainer.innerHTML = '<p style="text-align: center; color: #666;">Your cart is empty</p>';
+                updateTotals(0);
+                return;
+            }
+            
+            // Add each item to the cart
+            cartItems.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                itemsTotal += itemTotal;
+                
+                const cartItemEl = document.createElement('div');
+                cartItemEl.className = 'cart-item';
+                cartItemEl.innerHTML = `
+                    <img src="${item.image || 'images/placeholder.png'}" alt="${item.name}">
+                    <div class="cart-item-info">
+                        <p><strong>${item.name}</strong></p>
+                        <p>₹${item.price.toFixed(2)}</p>
+                        <div class="qty">
+                            <button onclick="updateQuantity(${index}, -1)">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateQuantity(${index}, 1)">+</button>
+                        </div>
+                    </div>
+                `;
+                
+                cartItemsContainer.appendChild(cartItemEl);
+            });
+            
+            updateTotals(itemsTotal);
+        }
+        
+        // Update totals in the bill summary
+        function updateTotals(itemsTotal) {
+            const deliveryCharge = cartItems.length > 0 ? 25 : 0;
+            const handlingCharge = cartItems.length > 0 ? 9 : 0;
+            const grandTotal = itemsTotal + deliveryCharge + handlingCharge;
+            
+            itemsTotalEl.textContent = `₹${itemsTotal.toFixed(2)}`;
+            grandTotalEl.textContent = `₹${grandTotal.toFixed(2)}`;
+            payTotalEl.textContent = grandTotal.toFixed(2);
+            
+            // Check login status again and update button text
+            const currentLoginStatus = localStorage.getItem('isLoggedIn') === 'true';
+            
+            if (currentLoginStatus) {
+                payButton.innerHTML = `₹${grandTotal.toFixed(2)} - Proceed to Checkout`;
+            } else {
+                payButton.innerHTML = `₹${grandTotal.toFixed(2)} - Login to Proceed`;
+            }
+        }
+        
+        // Function to update item quantity and sync both storage formats
+        window.updateQuantity = function(index, change) {
+            const item = cartItems[index];
+            const newQuantity = item.quantity + change;
+            
+            if (newQuantity > 0) {
+                item.quantity = newQuantity;
+            } else {
+                // Remove item if quantity goes to zero
+                cartItems.splice(index, 1);
+            }
+            
+            // Save updated cart to localStorage (both formats)
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            
+            // Also update the cart object format used by product pages
+            const productPageCart = {};
+            cartItems.forEach(item => {
+                productPageCart[item.name] = {
+                    qty: item.quantity,
+                    price: item.price,
+                    image: item.image,
+                    size: item.size || ''
+                };
+            });
+            localStorage.setItem('cart', JSON.stringify(productPageCart));
+            
+            // Re-render cart
+            renderCart();
+        };
+        
+        // Add click event to the pay button
+        payButton.addEventListener('click', function() {
+            // Force a re-check of login status when button is clicked
+            const currentLoginStatus = localStorage.getItem('isLoggedIn') === 'true';
+            
+            if (currentLoginStatus) {
+                // Proceed to checkout
+                window.location.href = 'checkout.html';
+            } else {
+                // Redirect to login page
+                window.location.href = 'LoginPage.html';
+            }
+        });
+        
+        // Initial render
+        renderCart();
+        
+        // Add an event listener to check login status periodically
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'isLoggedIn') {
+                // Login status changed, update UI
+                const newLoginStatus = e.newValue === 'true';
+                if (newLoginStatus) {
+                    const total = payTotalEl.textContent;
+                    payButton.innerHTML = `₹${total} - Proceed to Checkout`;
+                } else {
+                    const total = payTotalEl.textContent;
+                    payButton.innerHTML = `₹${total} - Login to Proceed`;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

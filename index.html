@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Quick Mart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/media.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <style>
+        .dropbtn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: black;
+        }
+
+        .dropdown-content a {
+            padding: 10px;
+            display: block;
+            text-decoration: none;
+            color: black;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="headerLeft">
+            <div class="logo">
+                <a href="">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="300" height="100" viewBox="0 0 300 100">
+                        <text x="0" y="70" font-family="Arial, sans-serif" font-size="60">
+                            <tspan fill="#FDCB02">Quick</tspan>
+                            <tspan fill="#2E9E44">Mart</tspan>
+                        </text>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="headerAddress">
+                <h3>Delivery in 8 minutes</h3>
+                <p>C-37, Third Floor, Sector 22, Noida</p>
+            </div>
+        </div>
+
+        <form class="searchBox">
+            <button><i class="fa-solid fa-magnifying-glass"></i></button>
+            <input type="text" />
+        </form>
+
+        <div class="headerBtn">
+            <div id="userDropdown" class="dropdown" style="display: none; position: relative;">
+                <button class="dropbtn" id="welcomeUser" style="font-weight: bold;">Welcome</button>
+                <div class="dropdown-content" id="dropdownContent"
+                    style="display: none; position: absolute; right: 0; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); min-width: 160px; z-index: 1001;">
+                    <a href="Home.html">🏠 Go to Dashboard</a>
+                    <a href="#" id="logoutBtn">❌ Logout</a>
+                </div>
+            </div>
+
+            <button id="loginBtn" style="cursor: pointer;">Login</button>
+            <button onclick="window.location.href='Cart.html'" style="cursor: pointer;">
+                <i class="fa-solid fa-cart-shopping"></i> &nbsp; My Cart
+            </button>
+        </div>
+    </header>
+
+    <section class="bannerSection">
+        <img src="images/3.png" alt="Banner Image">
+    </section>
+
+    <section class="categorySection">
+        <div class="categoryItems">
+            <a href="Dairy.html"><img src="images/8.png" alt="Dairy"></a>
+        </div>
+        <div class="categoryItems">
+            <a href="Fruits.html"><img src="images/9.png" alt="Fruits"></a>
+        </div>
+    </section>
+
+    <script>
+        const loginBtn = document.getElementById('loginBtn');
+        const welcomeUser = document.getElementById('welcomeUser');
+        const userDropdown = document.getElementById('userDropdown');
+        const dropdownContent = document.getElementById('dropdownContent');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        loginBtn.addEventListener('click', () => {
+            window.location.href = 'Login.html';
+        });
+
+        welcomeUser.addEventListener('click', () => {
+            dropdownContent.style.display = dropdownContent.style.display === "block" ? "none" : "block";
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'Home.html';
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem("isLoggedIn") === "true") {
+                loginBtn.style.display = "none";
+                const username = localStorage.getItem("userName");
+                welcomeUser.textContent = "Welcome, " + username + " ⌄";
+                userDropdown.style.display = "inline-block";
+            }
+        });
+    </script>
+</body>
+
+</html>

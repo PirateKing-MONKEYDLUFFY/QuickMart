@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - QuickMart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        header {
+            background-color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo a {
+            text-decoration: none;
+            color: inherit;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            display: flex;
+            gap: 30px;
+        }
+
+        .checkout-left {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+        }
+
+        .checkout-right {
+            width: 350px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            align-self: flex-start;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        .order-summary {
+            margin-bottom: 30px;
+        }
+
+        .order-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-right: 15px;
+        }
+
+        .order-item-details {
+            flex: 1;
+        }
+
+        .order-item-details h4 {
+            margin-bottom: 5px;
+        }
+
+        .order-item-price {
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .price-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .total-price {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .payment-methods {
+            margin-top: 30px;
+        }
+
+        .payment-option {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-option:hover {
+            border-color: #28a745;
+            background-color: #f9fff9;
+        }
+
+        .payment-option.selected {
+            border-color: #28a745;
+            background-color: #f0fff0;
+        }
+
+        .payment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .payment-header i {
+            margin-right: 10px;
+            font-size: 24px;
+            color: #28a745;
+        }
+
+        .payment-content {
+            padding-left: 34px;
+            display: none;
+        }
+
+        .payment-option.selected .payment-content {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .place-order-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .place-order-btn:hover {
+            background-color: #218838;
+        }
+
+        .address-detail {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .address-detail p {
+            margin-bottom: 5px;
+        }
+
+        .edit-btn {
+            color: #28a745;
+            text-decoration: none;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .checkout-right {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <a href="home.html">QuickMart</a>
+        </div>
+        <div>
+            <span id="welcome-user">Welcome, Guest</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="checkout-left">
+            <h2>Checkout</h2>
+
+            <div class="address-detail">
+                <h3>Delivery Address <a href="customer-address.html" class="edit-btn">Edit</a></h3>
+                <p id="delivery-address">Loading address...</p>
+            </div>
+
+            <div class="payment-methods">
+                <h3>Select Payment Method</h3>
+                
+                <div class="payment-option" data-method="card">
+                    <div class="payment-header">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <h4>Credit/Debit Card</h4>
+                    </div>
+                    <div class="payment-content">
+                        <div class="form-group">
+                            <label for="card-number">Card Number</label>
+                            <input type="text" id="card-number" placeholder="1234 5678 9012 3456">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="expiry">Expiry Date</label>
+                                <input type="text" id="expiry" placeholder="MM/YY">
+                            </div>
+                            <div class="form-group">
+                                <label for="cvv">CVV</label>
+                                <input type="text" id="cvv" placeholder="123">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="card-name">Name on Card</label>
+                            <input type="text" id="card-name" placeholder="John Doe">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-option" data-method="upi">
+                    <div class="payment-header">
+                        <i class="fa-solid fa-mobile-screen"></i>
+                        <h4>UPI</h4>
+                    </div>
+                    <div class="payment-content">
+                        <div class="form-group">
+                            <label for="upi-id">UPI ID</label>
+                            <input type="text" id="upi-id" placeholder="name@upi">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-option" data-method="wallet">
+                    <div class="payment-header">
+                        <i class="fa-solid fa-wallet"></i>
+                        <h4>Digital Wallet</h4>
+                    </div>
+                    <div class="payment-content">
+                        <div class="form-group">
+                            <label for="wallet-type">Select Wallet</label>
+                            <select id="wallet-type">
+                                <option value="">Select a wallet</option>
+                                <option value="paytm">Paytm</option>
+                                <option value="amazonpay">Amazon Pay</option>
+                                <option value="phonepe">PhonePe</option>
+                                <option value="gpay">Google Pay</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="wallet-number">Mobile Number</label>
+                            <input type="text" id="wallet-number" placeholder="10-digit mobile number">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-option" data-method="cod">
+                    <div class="payment-header">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                        <h4>Cash on Delivery</h4>
+                    </div>
+                    <div class="payment-content">
+                        <p>Pay with cash upon delivery. Our delivery partner will collect the payment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="checkout-right">
+            <h2>Order Summary</h2>
+            <div class="order-summary" id="order-items">
+                <!-- Order items will be populated by JavaScript -->
+            </div>
+
+            <div class="price-details">
+                <div class="price-detail">
+                    <span>Items Total</span>
+                    <span id="items-total">₹0</span>
+                </div>
+                <div class="price-detail">
+                    <span>Delivery Charge</span>
+                    <span id="delivery-charge">₹25</span>
+                </div>
+                <div class="price-detail">
+                    <span>Handling Charge</span>
+                    <span id="handling-charge">₹9</span>
+                </div>
+                <div class="price-detail total-price">
+                    <span>Total Amount</span>
+                    <span id="total-amount">₹0</span>
+                </div>
+            </div>
+
+            <button class="place-order-btn" id="place-order-btn">Place Order</button>
+        </div>
+    </div>
+
+    <script>
+        // Load cart items from localStorage
+        const cart = JSON.parse(localStorage.getItem('cartItems')) || {};
+        const orderItemsContainer = document.getElementById('order-items');
+        const itemsTotalEl = document.getElementById('items-total');
+        const totalAmountEl = document.getElementById('total-amount');
+        const welcomeUserEl = document.getElementById('welcome-user');
+        const deliveryAddressEl = document.getElementById('delivery-address');
+        
+        // Check if user is logged in
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            const userName = localStorage.getItem('userName');
+            welcomeUserEl.textContent = `Welcome, ${userName}`;
+        }
+        
+        // Load saved address if available
+        if (localStorage.getItem('displayAddress')) {
+            deliveryAddressEl.textContent = localStorage.getItem('displayAddress');
+        } else {
+            deliveryAddressEl.textContent = 'No address saved. Please add a delivery address.';
+        }
+        
+        // Render order items and calculate totals
+        function renderOrderSummary() {
+            let itemsTotal = 0;
+            
+            // Clear order items container
+            orderItemsContainer.innerHTML = '';
+            
+            if (Object.keys(cart).length === 0) {
+                orderItemsContainer.innerHTML = '<p>Your cart is empty</p>';
+                updateTotals(0);
+                return;
+            }
+            
+            // Add each item to the order summary
+            for (let name in cart) {
+                const item = cart[name];
+                const itemTotal = item.price * item.quantity;
+                itemsTotal += itemTotal;
+                
+                const orderItemEl = document.createElement('div');
+                orderItemEl.className = 'order-item';
+                orderItemEl.innerHTML = `
+                    <img src="${item.image || 'images/placeholder.png'}" alt="${name}">
+                    <div class="order-item-details">
+                        <h4>${name}</h4>
+                        <p>${item.quantity} × ₹${item.price.toFixed(2)}</p>
+                    </div>
+                    <div class="order-item-price">₹${itemTotal.toFixed(2)}</div>
+                `;
+                
+                orderItemsContainer.appendChild(orderItemEl);
+            }
+            
+            updateTotals(itemsTotal);
+        }
+        
+        // Update totals in the price details
+        function updateTotals(itemsTotal) {
+            const deliveryCharge = Object.keys(cart).length > 0 ? 25 : 0;
+            const handlingCharge = Object.keys(cart).length > 0 ? 9 : 0;
+            const totalAmount = itemsTotal + deliveryCharge + handlingCharge;
+            
+            itemsTotalEl.textContent = `₹${itemsTotal.toFixed(2)}`;
+            totalAmountEl.textContent = `₹${totalAmount.toFixed(2)}`;
+        }
+        
+        // Handle payment method selection
+        const paymentOptions = document.querySelectorAll('.payment-option');
+        
+        paymentOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                paymentOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // Add selected class to the clicked option
+                this.classList.add('selected');
+            });
+        });
+        
+        // Handle place order button
+        document.getElementById('place-order-btn').addEventListener('click', function() {
+            const selectedPayment = document.querySelector('.payment-option.selected');
+            
+            if (!selectedPayment) {
+                alert('Please select a payment method');
+                return;
+            }
+            
+            const paymentMethod = selectedPayment.getAttribute('data-method');
+            
+            // Simple validation for different payment methods
+            if (paymentMethod === 'card') {
+                const cardNumber = document.getElementById('card-number').value;
+                const expiry = document.getElementById('expiry').value;
+                const cvv = document.getElementById('cvv').value;
+                
+                if (!cardNumber || !expiry || !cvv) {
+                    alert('Please fill in all card details');
+                    return;
+                }
+            } else if (paymentMethod === 'upi') {
+                const upiId = document.getElementById('upi-id').value;
+                
+                if (!upiId) {
+                    alert('Please enter your UPI ID');
+                    return;
+                }
+            } else if (paymentMethod === 'wallet') {
+                const walletType = document.getElementById('wallet-type').value;
+                const walletNumber = document.getElementById('wallet-number').value;
+                
+                if (!walletType || !walletNumber) {
+                    alert('Please fill in all wallet details');
+                    return;
+                }
+            }
+            
+            // Process order
+            // Get the total amount from the DOM
+            const totalAmount = document.getElementById('total-amount').textContent.replace('₹', '');
+            
+            // Save total amount for order confirmation page
+            localStorage.setItem('orderTotal', totalAmount);
+            
+            // Save payment method for order confirmation page
+            const paymentMethodName = {
+                'card': 'Credit/Debit Card',
+                'upi': 'UPI',
+                'wallet': 'Digital Wallet',
+                'cod': 'Cash on Delivery'
+            }[paymentMethod];
+            
+            // Clear cart
+            localStorage.removeItem('cartItems');
+            
+            // Redirect to order confirmation page with payment method
+            window.location.href = `order-confirmation.html?method=${encodeURIComponent(paymentMethodName)}&total=${totalAmount}`;
+        });
+        
+        // Initial render
+        renderOrderSummary();
+    </script>
+</body>
+
+</html> 

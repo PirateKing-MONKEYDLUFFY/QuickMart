@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buy Atta Online</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+        }
+
+        .main {
+            flex-grow: 1;
+            padding: 30px;
+        }
+
+        .main h1 {
+            margin-bottom: 20px;
+        }
+
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            width: 200px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.2s ease;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: scale(1.03);
+        }
+
+        .card img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .time-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f1f1f1;
+            padding: 2px 6px;
+            font-size: 12px;
+            color: #666;
+            border-radius: 4px;
+        }
+
+        .card h3 {
+            font-size: 15px;
+            margin: 10px 0 5px;
+            min-height: 36px;
+        }
+
+        .card .price {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .card .mrp {
+            font-size: 13px;
+            color: #888;
+            text-decoration: line-through;
+            margin-bottom: 8px;
+        }
+
+        .card .add-btn {
+            background-color: white;
+            color: #28a745;
+            border: 2px solid #28a745;
+            padding: 5px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s ease;
+        }
+
+        .card .add-btn:hover {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main">
+        <h1>Buy Atta Online</h1>
+        <div class="products">
+
+            <div class="card">
+                <div class="time-badge">8 MINS</div>
+                <img src="atta1.png" alt="Aashirvaad Atta">
+                <h3>Aashirvaad Shudh Chakki Atta (100% Atta)</h3>
+                <div class="price">₹246</div>
+                <div class="mrp">₹259</div>
+                <button class="add-btn">ADD</button>
+            </div>
+
+            <div class="card">
+                <div class="time-badge">8 MINS</div>
+                <img src="atta2.png" alt="Multigrain Atta">
+                <h3>Aashirvaad High Fibre Atta with Multigrains - 5 kg</h3>
+                <div class="price">₹321</div>
+                <div class="mrp">₹371</div>
+                <button class="add-btn">ADD</button>
+            </div>
+
+            <div class="card">
+                <div class="time-badge">8 MINS</div>
+                <img src="atta3.png" alt="MP Sharbati Atta">
+                <h3>Aashirvaad Select 100% MP Sharbati Atta</h3>
+                <div class="price">₹324</div>
+                <div class="mrp">₹370</div>
+                <button class="add-btn">ADD</button>
+            </div>
+
+            <div class="card">
+                <div class="time-badge">8 MINS</div>
+                <img src="atta4.png" alt="Pillsbury Atta">
+                <h3>Pillsbury Chakki Fresh Atta - 10 Kg</h3>
+                <div class="price">₹418</div>
+                <div class="mrp">₹485</div>
+                <button class="add-btn">ADD</button>
+            </div>
+
+            <div class="card">
+                <div class="time-badge">8 MINS</div>
+                <img src="atta5.png" alt="Fortune Atta">
+                <h3>Fortune Chakki Fresh (100% Atta, 0% Maida)</h3>
+                <div class="price">₹414</div>
+                <div class="mrp">₹485</div>
+                <button class="add-btn">ADD</button>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>

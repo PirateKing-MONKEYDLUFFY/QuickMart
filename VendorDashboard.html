@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vendor Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .nav-tabs .nav-link {
+            font-weight: 500;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+        }
+
+        .btn-primary {
+            background-color: #2E9E44;
+            border-color: #2E9E44;
+        }
+
+        .btn-primary:hover {
+            background-color: #24823A;
+            border-color: #24823A;
+        }
+
+        .btn-warning {
+            background-color: #FDCB02;
+            border-color: #FDCB02;
+            color: #000;
+        }
+
+        .btn-warning:hover {
+            background-color: #E3B800;
+            border-color: #E3B800;
+            color: #000;
+        }
+
+        .header-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #addItemModal .form-control {
+            margin-bottom: 15px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-good {
+            background-color: #28a745;
+        }
+
+        .status-warning {
+            background-color: #ffc107;
+        }
+
+        .status-danger {
+            background-color: #dc3545;
+        }
+
+        #salesData th, #salesData td {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-action">
+            <h2><i class="fas fa-store"></i> Vendor Dashboard</h2>
+            <button class="btn btn-primary" onclick="window.location.href='home.html'">
+                <i class="fas fa-home"></i> Back to Home
+            </button>
+        </div>
+
+        <div class="mb-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h4 id="welcomeMessage">Welcome back, Vendor</h4>
+                    <p class="text-muted">Manage your inventory and track your sales</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab navigation -->
+        <ul class="nav nav-tabs mb-4" id="vendorTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab" aria-controls="inventory" aria-selected="true">
+                    <i class="fas fa-boxes"></i> Inventory Management
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="sales-tab" data-bs-toggle="tab" data-bs-target="#sales" type="button" role="tab" aria-controls="sales" aria-selected="false">
+                    <i class="fas fa-chart-line"></i> Sales Analytics
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab content -->
+        <div class="tab-content" id="vendorTabsContent">
+            <!-- Inventory Management Tab -->
+            <div class="tab-pane fade show active" id="inventory" role="tabpanel" aria-labelledby="inventory-tab">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-cubes"></i> Total Items</h5>
+                                <p id="totalItems" class="card-text h2">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-exclamation-triangle"></i> Out of Stock</h5>
+                                <p id="outOfStock" class="card-text h2">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-warning">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-battery-quarter"></i> Low Stock (< 10)</h5>
+                                <p id="lowStock" class="card-text h2">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5>Inventory Items</h5>
+                                <div>
+                                    <button class="btn btn-danger me-2" id="resetInventoryBtn">
+                                        <i class="fas fa-trash-alt"></i> Reset Inventory
+                                    </button>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                                        <i class="fas fa-plus"></i> Add New Item
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Product Name</th>
+                                                <th>Category</th>
+                                                <th>Price (₹)</th>
+                                                <th>Quantity</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="inventoryTableBody">
+                                            <!-- Inventory data will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Inventory by Category</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Stock Levels</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="stockLevelChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Analytics Tab -->
+            <div class="tab-pane fade" id="sales" role="tabpanel" aria-labelledby="sales-tab">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-rupee-sign"></i> Total Revenue</h5>
+                                <p id="totalRevenue" class="card-text h2">₹ 12,450</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-shopping-cart"></i> Total Orders</h5>
+                                <p id="totalOrders" class="card-text h2">47</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-star"></i> Average Rating</h5>
+                                <p id="avgRating" class="card-text h2">4.7 / 5</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Sales Over Time</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Recent Orders</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="salesData">
+                                        <thead>
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Date</th>
+                                                <th>Customer</th>
+                                                <th>Items</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><a href="#">ORD-1001</a></td>
+                                                <td>24-May-2023</td>
+                                                <td>Rahul Singh</td>
+                                                <td>3</td>
+                                                <td>₹ 530</td>
+                                                <td><span class="badge bg-success">Delivered</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href="#">ORD-1002</a></td>
+                                                <td>23-May-2023</td>
+                                                <td>Priya Sharma</td>
+                                                <td>5</td>
+                                                <td>₹ 1,275</td>
+                                                <td><span class="badge bg-success">Delivered</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href="#">ORD-1003</a></td>
+                                                <td>23-May-2023</td>
+                                                <td>Amit Kumar</td>
+                                                <td>2</td>
+                                                <td>₹ 300</td>
+                                                <td><span class="badge bg-primary">Shipped</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href="#">ORD-1004</a></td>
+                                                <td>22-May-2023</td>
+                                                <td>Shreya Verma</td>
+                                                <td>7</td>
+                                                <td>₹ 1,890</td>
+                                                <td><span class="badge bg-success">Delivered</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href="#">ORD-1005</a></td>
+                                                <td>22-May-2023</td>
+                                                <td>Vikas Patil</td>
+                                                <td>1</td>
+                                                <td>₹ 150</td>
+                                                <td><span class="badge bg-warning text-dark">Processing</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItemModalLabel">Add New Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addItemForm">
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="productName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" required>
+                                <option value="">Select Category</option>
+                                <option value="Fruits & Vegetables">Fruits & Vegetables</option>
+                                <option value="Dairy, Bread & Eggs">Dairy, Bread & Eggs</option>
+                                <option value="Cold Drink & Juices">Cold Drink & Juices</option>
+                                <option value="Snack & Munchies">Snack & Munchies</option>
+                                <option value="Bakery & Biscuit">Bakery & Biscuit</option>
+                                <option value="Personal Care">Personal Care</option>
+                                <option value="Cleaning Essentials">Cleaning Essentials</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Price (₹)</label>
+                            <input type="number" class="form-control" id="price" min="0" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveItemBtn">Save Item</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Quantity Modal -->
+    <div class="modal fade" id="editQuantityModal" tabindex="-1" aria-labelledby="editQuantityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editQuantityModalLabel">Update Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editQuantityForm">
+                        <input type="hidden" id="editItemId">
+                        <div class="mb-3">
+                            <label for="itemName" class="form-label">Product</label>
+                            <input type="text" class="form-control" id="itemName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="currentQuantity" class="form-label">Current Stock</label>
+                            <input type="number" class="form-control" id="currentQuantity" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newQuantity" class="form-label">New Stock Quantity</label>
+                            <input type="number" class="form-control" id="newQuantity" min="0" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="updateQuantityBtn">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap and Chart.js Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Check if user is logged in as vendor
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+            const userRole = localStorage.getItem("userRole");
+            
+            if (!isLoggedIn || userRole !== "Vendor") {
+                // Redirect non-vendors back to home page
+                window.location.href = "home.html";
+                return;
+            }
+            
+            // Display vendor name in welcome message
+            const userName = localStorage.getItem("userName") || "Vendor";
+            document.getElementById('welcomeMessage').textContent = `Welcome back, ${userName}`;
+            
+            // Load saved inventory if available
+            const savedInventory = localStorage.getItem("vendorInventory");
+            if (savedInventory) {
+                inventory = JSON.parse(savedInventory);
+            }
+            
+            // Initialize vendor dashboard
+            updateDashboardStats();
+            renderInventoryTable();
+            renderCharts();
+            
+            // Setup event listeners
+            document.getElementById('saveItemBtn').addEventListener('click', addNewItem);
+            document.getElementById('updateQuantityBtn').addEventListener('click', updateItemQuantity);
+            document.getElementById('resetInventoryBtn').addEventListener('click', confirmResetInventory);
+        });
+        
+        // Sample inventory data
+        let inventory = [
+            { id: 1, name: "Milk", category: "Dairy, Bread & Eggs", price: 58, quantity: 25 },
+            { id: 2, name: "Bread", category: "Dairy, Bread & Eggs", price: 40, quantity: 8 },
+            { id: 3, name: "Orange Juice", category: "Cold Drink & Juices", price: 80, quantity: 15 },
+            { id: 4, name: "Apple", category: "Fruits & Vegetables", price: 20, quantity: 0 },
+            { id: 5, name: "Toothpaste", category: "Personal Care", price: 95, quantity: 5 },
+            { id: 6, name: "Detergent", category: "Cleaning Essentials", price: 200, quantity: 12 },
+            { id: 7, name: "Biscuits", category: "Bakery & Biscuit", price: 30, quantity: 18 },
+            { id: 8, name: "Chocolate", category: "Snack & Munchies", price: 50, quantity: 0 }
+        ];
+
+        // Sales data for chart
+        const salesData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Revenue (₹)',
+                data: [1200, 1900, 2100, 2400, 2000, 3200],
+                backgroundColor: 'rgba(46, 158, 68, 0.2)',
+                borderColor: 'rgba(46, 158, 68, 1)',
+                borderWidth: 2,
+                tension: 0.4
+            }]
+        };
+
+        // Update dashboard statistics
+        function updateDashboardStats() {
+            document.getElementById("totalItems").textContent = inventory.length;
+            document.getElementById("outOfStock").textContent = inventory.filter(i => i.quantity === 0).length;
+            document.getElementById("lowStock").textContent = inventory.filter(i => i.quantity > 0 && i.quantity < 10).length;
+        }
+
+        // Render inventory table
+        function renderInventoryTable() {
+            const tableBody = document.getElementById('inventoryTableBody');
+            tableBody.innerHTML = '';
+            
+            inventory.forEach(item => {
+                const row = document.createElement('tr');
+                
+                // Determine status for visual indicator
+                let statusClass = 'status-good';
+                if (item.quantity === 0) {
+                    statusClass = 'status-danger';
+                } else if (item.quantity < 10) {
+                    statusClass = 'status-warning';
+                }
+                
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.category}</td>
+                    <td>₹ ${item.price}</td>
+                    <td>${item.quantity}</td>
+                    <td>
+                        <span class="status-indicator ${statusClass}"></span>
+                        ${item.quantity === 0 ? 'Out of Stock' : (item.quantity < 10 ? 'Low Stock' : 'In Stock')}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning edit-stock" data-id="${item.id}">
+                            <i class="fas fa-edit"></i> Edit Stock
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Add event listeners to edit buttons
+            document.querySelectorAll('.edit-stock').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemId = this.getAttribute('data-id');
+                    openEditStockModal(parseInt(itemId));
+                });
+            });
+        }
+
+        // Render charts
+        function renderCharts() {
+            // Calculate category data
+            const categoryData = {};
+            inventory.forEach(item => {
+                categoryData[item.category] = (categoryData[item.category] || 0) + 1;
+            });
+
+            // Category chart
+            const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctxCategory, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        label: 'Item Categories',
+                        data: Object.values(categoryData),
+                        backgroundColor: ['#36A2EB', '#FF6384', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#2E9E44', '#FFA07A']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Inventory by Category'
+                        }
+                    }
+                }
+            });
+
+            // Stock level chart
+            const ctxStock = document.getElementById('stockLevelChart').getContext('2d');
+            new Chart(ctxStock, {
+                type: 'bar',
+                data: {
+                    labels: inventory.map(i => i.name),
+                    datasets: [{
+                        label: 'Stock Level',
+                        data: inventory.map(i => i.quantity),
+                        backgroundColor: inventory.map(i => {
+                            return i.quantity === 0 ? '#dc3545' : (i.quantity < 10 ? '#ffc107' : '#2E9E44');
+                        })
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Stock Levels of Products'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Sales chart
+            const ctxSales = document.getElementById('salesChart').getContext('2d');
+            new Chart(ctxSales, {
+                type: 'line',
+                data: salesData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Monthly Revenue'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹ ' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Open edit stock modal
+        function openEditStockModal(itemId) {
+            const item = inventory.find(i => i.id === itemId);
+            if (item) {
+                document.getElementById('editItemId').value = item.id;
+                document.getElementById('itemName').value = item.name;
+                document.getElementById('currentQuantity').value = item.quantity;
+                document.getElementById('newQuantity').value = item.quantity;
+                
+                const modal = new bootstrap.Modal(document.getElementById('editQuantityModal'));
+                modal.show();
+            }
+        }
+
+        // Update item quantity
+        function updateItemQuantity() {
+            const itemId = parseInt(document.getElementById('editItemId').value);
+            const newQuantity = parseInt(document.getElementById('newQuantity').value);
+            
+            const itemIndex = inventory.findIndex(i => i.id === itemId);
+            if (itemIndex !== -1 && !isNaN(newQuantity) && newQuantity >= 0) {
+                inventory[itemIndex].quantity = newQuantity;
+                
+                // Save to localStorage
+                localStorage.setItem("vendorInventory", JSON.stringify(inventory));
+                
+                // Update UI
+                updateDashboardStats();
+                renderInventoryTable();
+                renderCharts();
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editQuantityModal'));
+                modal.hide();
+                
+                // Show success notification
+                showNotification('Stock updated successfully!');
+            }
+        }
+
+        // Add new item
+        function addNewItem() {
+            const name = document.getElementById('productName').value;
+            const category = document.getElementById('category').value;
+            const price = parseFloat(document.getElementById('price').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const description = document.getElementById('description').value;
+            
+            if (!name || !category || isNaN(price) || isNaN(quantity)) {
+                alert('Please fill all required fields correctly');
+                return;
+            }
+            
+            // Create new item with incrementing ID
+            const newItemId = Math.max(...inventory.map(i => i.id), 0) + 1;
+            const newItem = {
+                id: newItemId,
+                name: name,
+                category: category,
+                price: price,
+                quantity: quantity,
+                description: description
+            };
+            
+            // Add to inventory
+            inventory.push(newItem);
+            
+            // Save to localStorage
+            localStorage.setItem("vendorInventory", JSON.stringify(inventory));
+            
+            // Update UI
+            updateDashboardStats();
+            renderInventoryTable();
+            renderCharts();
+            
+            // Reset form and close modal
+            document.getElementById('addItemForm').reset();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addItemModal'));
+            modal.hide();
+            
+            // Show success notification
+            showNotification('New item added successfully!');
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.backgroundColor = '#4CAF50';
+            notification.style.color = 'white';
+            notification.style.padding = '16px';
+            notification.style.borderRadius = '4px';
+            notification.style.zIndex = '1000';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Confirm reset inventory
+        function confirmResetInventory() {
+            if (confirm('Are you sure you want to reset your inventory? This will reset all items to their default state.')) {
+                // Reset to default inventory
+                inventory = [
+                    { id: 1, name: "Milk", category: "Dairy, Bread & Eggs", price: 58, quantity: 25 },
+                    { id: 2, name: "Bread", category: "Dairy, Bread & Eggs", price: 40, quantity: 8 },
+                    { id: 3, name: "Orange Juice", category: "Cold Drink & Juices", price: 80, quantity: 15 },
+                    { id: 4, name: "Apple", category: "Fruits & Vegetables", price: 20, quantity: 0 },
+                    { id: 5, name: "Toothpaste", category: "Personal Care", price: 95, quantity: 5 },
+                    { id: 6, name: "Detergent", category: "Cleaning Essentials", price: 200, quantity: 12 },
+                    { id: 7, name: "Biscuits", category: "Bakery & Biscuit", price: 30, quantity: 18 },
+                    { id: 8, name: "Chocolate", category: "Snack & Munchies", price: 50, quantity: 0 }
+                ];
+                
+                // Save to localStorage
+                localStorage.setItem("vendorInventory", JSON.stringify(inventory));
+                
+                // Update UI
+                updateDashboardStats();
+                renderInventoryTable();
+                renderCharts();
+                
+                // Show success notification
+                showNotification('Inventory has been reset to default values');
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy Chocolates Online</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+        }
+
+        .main {
+            flex-grow: 1;
+            padding: 30px;
+        }
+
+        .main h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #222;
+        }
+
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            width: 200px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.03);
+        }
+
+        .card img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .card h3 {
+            font-size: 16px;
+            margin: 10px 0 5px;
+        }
+
+        .card p {
+            color: gray;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .card .price {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .card .add-btn {
+            background-color: white;
+            color: #28a745;
+            border: 2px solid #28a745;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .card .add-btn:hover {
+            background-color: #28a745;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <h1>Buy Chocolates Online</h1>
+        <div class="products">
+            <div class="card">
+                <img src="https://via.placeholder.com/200x140.png?text=KitKat+4+Fingers" alt="KitKat">
+                <h3>KitKat Grand Break</h3>
+                <p>38.5 g</p>
+                <div class="price">₹35</div>
+                <button class="add-btn">ADD</button>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x140.png?text=Munch+Max" alt="Munch">
+                <h3>Munch Max Crunchy</h3>
+                <p>38.5 g</p>
+                <div class="price">₹20</div>
+                <button class="add-btn">ADD</button>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x140.png?text=Dairy+Milk" alt="Dairy Milk">
+                <h3>Cadbury Dairy Milk</h3>
+                <p>52 g</p>
+                <div class="price">₹58</div>
+                <button class="add-btn">ADD</button>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x140.png?text=Perk+Plus" alt="Perk">
+                <h3>Cadbury Perk Plus</h3>
+                <p>3 x 40 g</p>
+                <div class="price">₹55</div>
+                <button class="add-btn">ADD</button>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x140.png?text=5+Star" alt="5 Star">
+                <h3>Cadbury 5 Star</h3>
+                <p>38 g</p>
+                <div class="price">₹20</div>
+                <button class="add-btn">ADD</button>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x140.png?text=Kinder+Joy" alt="Kinder Joy">
+                <h3>Kinder Joy (Blue)</h3>
+                <p>20 g</p>
+                <div class="price">₹49</div>
+                <button class="add-btn">ADD</button>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x140.png?text=Milkybar+Pack+of+3" alt="Milkybar">
+                <h3>Milkybar Made With Milk</h3>
+                <p>3 x 42 g</p>
+                <div class="price">₹113</div>
+                <button class="add-btn">ADD</button>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x140.png?text=Galaxy+Fusions" alt="Galaxy">
+                <h3>Galaxy Fusions Dark</h3>
+                <p>110 g</p>
+                <div class="price">₹179</div>
+                <button class="add-btn">ADD</button>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x140.png?text=Silk+Oreo" alt="Silk Oreo">
+                <h3>Cadbury Silk Oreo</h3>
+                <p>58.5 g</p>
+                <div class="price">₹100</div>
+                <button class="add-btn">ADD</button>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x140.png?text=Silk+Chocolate" alt="Silk">
+                <h3>Cadbury Silk Chocolate</h3>
+                <p>60 g</p>
+                <div class="price">₹105</div>
+                <button class="add-btn">ADD</button>
+            </div>
+            <div class="card">
+                <img src="https://via.placeholder.com/200x140.png?text=Dairy+Milk+Fruit+%26+Nut" alt="Fruit and Nut">
+                <h3>Dairy Milk Fruit & Nut</h3>
+                <p>36 g</p>
+                <div class="price">₹55</div>
+                <button class="add-btn">ADD</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
