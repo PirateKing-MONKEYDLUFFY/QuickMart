@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/media.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <title>Personal Care - Quick Mart</title>
+</head>
+
+<body>
+    <header>
+        <div class="headerLeft">
+            <div class="logo">
+                <a href="home.html">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="300" height="100" viewBox="0 0 300 100">
+                        <text x="0" y="70" font-family="Arial, sans-serif" font-size="60">
+                            <tspan fill="#FDCB02">Quick</tspan>
+                            <tspan fill="#2E9E44">Mart</tspan>
+                        </text>
+                    </svg></a>
+            </div>
+
+            <div class="headerAddress">
+                <h3>Delivery in 8 minutes</h3>
+                <p>C-37, Third Floor, Sector 22, Noida</p>
+            </div>
+        </div>
+
+        <form class="searchBox">
+            <button><i class="fa-solid fa-magnifying-glass"></i></button>
+            <input type="text" />
+        </form>
+
+        <div class="headerBtn">
+            <a href="LoginPage.html" target="_blank">
+                <button type="button">Login</button>
+            </a>
+            <button onclick="window.location.href='Cart.html'">
+                <i class="fa-solid fa-cart-shopping"></i> &nbsp; My Cart
+            </button>
+        </div>
+    </header>
+
+    <div class="category-banner">
+        <h1>Personal Care</h1>
+    </div>
+
+    <section class="products-container">
+        <div class="empty-category">
+            <i class="fa-solid fa-basket-shopping fa-4x"></i>
+            <h2>Products Coming Soon!</h2>
+            <p>We're working on adding products to this category.</p>
+            <a href="home.html" class="back-button">Back to Homepage</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="200" height="70" viewBox="0 0 300 100">
+                    <text x="0" y="70" font-family="Arial, sans-serif" font-size="60">
+                        <tspan fill="#FDCB02">Quick</tspan>
+                        <tspan fill="#2E9E44">Mart</tspan>
+                    </text>
+                </svg>
+                <p>Your one-stop shop for daily essentials.</p>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="home.html">Home</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>Contact Us</h3>
+                <p><i class="fa-solid fa-location-dot"></i> C-37, Third Floor, Sector 22, Noida</p>
+                <p><i class="fa-solid fa-phone"></i> +91 98765 43210</p>
+                <p><i class="fa-solid fa-envelope"></i> info@quickmart.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 QuickMart. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <style>
+        .category-banner {
+            background-color: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .category-banner h1 {
+            color: #2E9E44;
+            margin: 0;
+        }
+
+        .products-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 50vh;
+        }
+
+        .empty-category {
+            text-align: center;
+            padding: 50px 0;
+            color: #777;
+        }
+
+        .empty-category h2 {
+            margin: 20px 0;
+            color: #2E9E44;
+        }
+
+        .back-button {
+            display: inline-block;
+            background-color: #FDCB02;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #2E9E44;
+            color: white;
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 30px 0 0;
+            margin-top: 30px;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-logo, .footer-links, .footer-contact {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 20px;
+        }
+
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links a {
+            color: #ddd;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding: 20px 0;
+            border-top: 1px solid #444;
+            margin-top: 20px;
+        }
+    </style>
+</body>
+
+</html>

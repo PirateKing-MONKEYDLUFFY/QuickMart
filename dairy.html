@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Buy Fresh Dairy Online</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background-color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header input[type="text"] {
+            padding: 6px 12px;
+            width: 300px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .cart-info {
+            cursor: pointer;
+            background-color: #f4f4f4;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            transition: background 0.2s ease;
+        }
+
+        .cart-info:hover {
+            background-color: #e0e0e0;
+        }
+
+        .main {
+            padding: 30px;
+        }
+
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            width: 200px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+        }
+
+        .card .price {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .qty-btn {
+            background-color: white;
+            color: #28a745;
+            border: 2px solid #28a745;
+            padding: 4px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 4px;
+        }
+
+        .qty-btn:hover {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 350px;
+            background: white;
+            height: 100%;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        #cart-sidebar h3 {
+            margin: 0 0 10px;
+        }
+
+        #delivery-info {
+            background: #f2f2f2;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            gap: 10px;
+        }
+
+        .cart-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .cart-item .info {
+            flex-grow: 1;
+            font-size: 14px;
+        }
+
+        #cart-summary {
+            margin-top: 20px;
+            font-size: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
+        #cart-summary p {
+            display: flex;
+            justify-content: space-between;
+            margin: 6px 0;
+        }
+
+        #cancel-policy {
+            font-size: 12px;
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+
+        #checkout-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #checkout-bar button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h2>QuickMart</h2>
+        <input type="text" id="search" placeholder="Search products...">
+        <div class="cart-info" onclick="toggleCart()">
+            🛒 My Cart (<span id="cart-count">0</span>)
+        </div>
+    </header>
+
+    <div class="main">
+        <h1>Buy Fresh Dairy Online</h1>
+        <div class="products" id="products-container"></div>
+    </div>
+
+    <div id="cart-sidebar">
+        <h3>My Cart</h3>
+        <div id="delivery-info">🚀 Delivery in 8 minutes<br><small>Shipment of items</small></div>
+        <div id="cart-items"></div>
+
+        <div id="cart-summary">
+            <p><span>Items total</span><span>₹<span id="items-total">0</span></span></p>
+            <p><span>Delivery charge</span><span>₹25</span></p>
+            <p><span>Handling charge</span><span>₹9</span></p>
+            <p style="font-weight: bold; font-size: 16px;">
+                <span>Grand total</span>
+                <span>₹<span id="grand-total">0</span></span>
+            </p>
+        </div>
+
+        <div id="cancel-policy">
+            <strong>Cancellation Policy</strong><br>
+            Orders cannot be cancelled once packed. Refunds issued for unexpected delays.
+        </div>
+
+        <div id="checkout-bar">
+            <span><strong>₹<span id="checkout-total">0</span></strong> TOTAL</span>
+            <a href="LoginPage.html" target="_blank">
+                <button type="button">Login</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            { name: 'Amul Gold Full Cream Fresh Milk', size: '500 ml', price: 34 ,image:'img/1/1.png'},
+            { name: 'Amul Taza Toned Fresh Milk', size: '1 ltr', price: 55 ,image:'img/1/2.png'},
+            { name: 'Amul Cow fresh Milk', size: '500 ml', price: 29 ,image:'img/1/3.png'},
+            { name: 'Mother Dairy Cow Fresh Milk', size: '1 ltr', price: 57 ,image:'img/1/4.png'},
+            { name: 'Amul A2 Buffalo Fresh Milk', size: '500 ml', price: 37 ,image:'img/1/5.png'},
+            { name: 'Harvest Gold - White Bread', size: '350 g', price: 30 ,image:'img/1/6.png'},
+            { name: 'Harvest Gold 100% Atta Whole Wheat Bread', size: '450 g', price: 60 ,image:'img/1/7.png'},
+            { name: 'Harvest Gold White Bread', size: '700 g', price: 60 ,image:'img/1/8.png'},
+            { name: 'Harvest Gold Hearty Brown Bread', size: '400 g', price: 55 ,image:'img/1/9.png'},
+            { name: 'English Oven Premium White Bread', size: '700 g', price: 60 ,image:'img/1/10.png'},
+            { name: 'Table White Eggs', size: '10 pieces', price: 73 ,image:'img/1/11.png'},
+            { name: 'Table White Eggs', size: '6 pieces', price: 45 ,image:'img/1/12.png'},
+            { name: 'Eggoz Nutrition Protein Rich Brown Eggs', size: '10 pieces', price: 106 ,image:'img/1/13.png'},
+            { name: 'Hen Fruit White Protein Rich Eggs', size: '10 pieces', price: 96 ,image:'img/1/14.png'},
+            { name: 'Abhi Gold+ Brown Eggs', size: '6 pieces', price: 88 ,image:'img/1/15.png'},
+            { name: 'Amul Fresh Malai Paneer', size: '200 g', price: 91 ,image:'img/1/16.png'},
+            { name: 'Mother Dairy Paneer', size: '200 g', price: 95 ,image:'img/1/17.png'},
+            { name: 'Mother Dairy Malai Paneer', size: '200 g', price: 100 ,image:'img/1/18.png'},
+            { name: 'Country Delight Taaza Paneer', size: '180 g', price: 127 ,image:'img/1/19.png'},
+            { name: 'Ananda Premium Paneer', size: '200 g', price: 100 ,image:'img/1/20.png'},
+            { name: 'Amul Masti Pouch Curd', size: '400 g', price: 35 ,image:'img/1/21.png'},
+            { name: 'Mother Dairy Classic Pouch Curd', size: '400 g', price: 35 ,image:'img/1/22.png'},
+            { name: 'Mother Dairy Classic Curd', size: '1 kg', price: 75 ,image:'img/1/23.png'},
+            { name: 'Mother Dairy Classic Cup Curd', size: '400 g', price: 50 ,image:'img/1/24.png'},
+        ];
+
+        const cart = {};
+
+        function updateCart() {
+            const totalCount = Object.values(cart).reduce((acc, qty) => acc + qty, 0);
+            document.getElementById('cart-count').textContent = totalCount;
+        }
+
+        function updateCartSidebar() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const itemsTotalElem = document.getElementById('items-total');
+            const grandTotalElem = document.getElementById('grand-total');
+            const checkoutTotal = document.getElementById('checkout-total');
+
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+
+            for (let name in cart) {
+                const product = products.find(p => p.name === name);
+                const qty = cart[name];
+                const price = product.price * qty;
+                total += price;
+
+                const item = document.createElement('div');
+                item.className = 'cart-item';
+                item.innerHTML = `
+                    <img src="${product.image}" />
+                    <div class="info">
+                        <div>${product.name}</div>
+                        <div style="color: gray; font-size: 13px;">${product.size}</div>
+                    </div>
+                    <div>
+                        <button class="qty-btn" onclick="decreaseQty('${product.name}')">-</button>
+                        <span>${qty}</span>
+                        <button class="qty-btn" onclick="increaseQty('${product.name}')">+</button>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(item);
+            }
+
+            itemsTotalElem.textContent = total;
+            grandTotalElem.textContent = total + 25 + 9;
+            checkoutTotal.textContent = total + 25 + 9;
+        }
+
+        function toggleCart() {
+            const cartSidebar = document.getElementById('cart-sidebar');
+            cartSidebar.style.display = cartSidebar.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function increaseQty(name) {
+            cart[name] = (cart[name] || 0) + 1;
+            updateCart();
+            updateCartSidebar();
+            renderProducts(document.getElementById('search').value);
+        }
+
+        function decreaseQty(name) {
+            if (cart[name]) {
+                cart[name]--;
+                if (cart[name] === 0) delete cart[name];
+                updateCart();
+                updateCartSidebar();
+                renderProducts(document.getElementById('search').value);
+            }
+        }
+
+        function renderProducts(filter = '') {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            products
+                .filter(p => p.name.toLowerCase().includes(filter.toLowerCase()))
+                .forEach(product => {
+                    const quantity = cart[product.name] || 0;
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <p>${product.size}</p>
+                        <div class="price">₹${product.price}</div>
+                        <div>
+                            <button class="qty-btn" onclick="decreaseQty('${product.name}')">-</button>
+                            <span>${quantity}</span>
+                            <button class="qty-btn" onclick="increaseQty('${product.name}')">+</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+        }
+
+        document.getElementById('search').addEventListener('input', e => {
+            renderProducts(e.target.value);
+        });
+
+        renderProducts();
+    </script>
+</body>
+
+</html>

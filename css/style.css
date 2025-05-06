@@ -1,0 +1,258 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    font-family: sans-serif;
+    box-sizing: border-box;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    padding: 20px 30px;
+    border-right: 1px solid #ccc;
+}
+
+.headerAddress {
+    padding: 20px 30px;
+    font-style: none;
+}
+
+.headerAddress h3 {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.headerAddress p {
+    font-size: 15px;
+}
+
+.searchBox {
+    flex-grow: 1;
+    display: flex;
+    border-radius: 15px;
+    border: 1px solid #f4f4f4;
+    background-color: #f8f8f8;
+}
+
+.searchBox button {
+    padding: 15px;
+    border: none;
+    background-color: transparent;
+}
+
+
+.searchBox input {
+    flex-grow: 1;
+    border: none;
+    background-color: transparent;
+}
+
+.searchBox input:focus {
+    outline: none;
+}
+
+.headerBtn {
+    display: flex;
+    gap: 40px;
+    margin-right: 40px;
+
+}
+
+.headerBtn button {
+    font-size: 16px;
+    font-weight: normal; 
+    padding: 15px;
+    background-color: transparent;
+    border: none;
+}
+
+.headerBtn button:first-child {
+    color: #54b226;
+    font-weight: bold;
+    padding: 12px 20px;
+    border: 2px solid #54b226;
+    border-radius: 5px;
+    transition: all 0.25s ease;
+}
+
+.headerBtn button:first-child:hover {
+    background-color: #54b226;
+    color: white;
+    box-shadow: 0 4px 10px rgba(84, 178, 38, 0.3);
+    transform: translateY(-2px);
+}
+
+.headerBtn button:last-child {
+    color: white;
+    font-weight: bold;
+    padding: 12px 20px;
+    background-color: #54b226;
+    border: 2px solid #54b226;
+    border-radius: 5px;
+    transition: all 0.25s ease;
+}
+
+.headerBtn button:last-child:hover {
+    background-color: #54b226;
+    color: white;
+    box-shadow: 0 4px 10px rgba(84, 178, 38, 0.3);
+    transform: translateY(-2px);
+}
+
+.bannerSection {
+    max-width: 1280px;
+    margin-top: 5px;
+    margin: 0px auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    border-radius: 20px;
+    border-style: none;
+    overflow: hidden;
+}
+
+.bannerSection:hover {
+    transform: translateY(-8px) scale(1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.bannerSection img {
+    width: 100%;
+}
+
+.orderBanner {
+    display: flex;
+    max-width: 1280px;
+    margin: auto;
+    
+}
+
+.orderBannerItems {
+    flex-basis: 27%;
+    margin: 1%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.orderBannerItems:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.orderBannerItems img {
+    width: 100%;
+}
+
+.categorySection {
+    max-width: 1280px;
+    display: flex;
+    margin: 10px auto;
+    flex-wrap: wrap;
+}
+
+.categoryItems {
+    flex-basis: 10%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+.categoryItems:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    background-color: #ffffff;
+}
+
+.categoryItems img {
+    width: 100%;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+
+.footer {
+    padding: 40px 0px 0px 0px;
+}
+
+.footer-mid {
+    max-width: 1280px;
+    margin: auto;
+}
+
+.footer-mid-row1 {
+    width: 100%;
+    display: flex;
+    gap: 40px;
+}
+
+.footer-mid-row1-left {
+    flex-basis: 30%;
+}
+
+.footer-mid-row1-left h3 {
+    margin-bottom: 20px;
+}
+
+.footer-mid-row1-right {
+    flex-basis: 70%;
+}
+
+.usefulLinks {
+    display: flex;
+}
+
+.usefulLinks ul {
+    flex-basis: 33%;
+    list-style: none;
+}
+
+.usefulLinks li a {
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: block;
+    color: rgb(102, 102, 102);
+}
+
+.footer-mid-row1-right {
+    flex-basis: 30%;
+}
+
+.CategoriesHeadingRow {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+
+.usefulLinksFooter {
+    display: flex;
+    gap: 10%;
+}
+
+.usefulLinksFooter ul {
+    flex-basis: 33%;
+    list-style: none;
+    min-width: 220px;
+}
+
+.usefulLinksFooter li a {
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: block;
+    color: rgb(102, 102, 102);
+}

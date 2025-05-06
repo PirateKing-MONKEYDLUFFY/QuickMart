@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vendor Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" 
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .nav-tabs .nav-link {
+            font-weight: 500;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+        }
+
+        .btn-primary {
+            background-color: #2E9E44;
+            border-color: #2E9E44;
+        }
+
+        .btn-primary:hover {
+            background-color: #24823A;
+            border-color: #24823A;
+        }
+
+        .btn-warning {
+            background-color: #FDCB02;
+            border-color: #FDCB02;
+            color: #000;
+        }
+
+        .btn-warning:hover {
+            background-color: #E3B800;
+            border-color: #E3B800;
+            color: #000;
+        }
+
+        .header-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #addItemModal .form-control {
+            margin-bottom: 15px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .status-good {
+            background-color: #28a745;
+        }
+
+        .status-warning {
+            background-color: #ffc107;
+        }
+
+        .status-danger {
+            background-color: #dc3545;
+        }
+
+        #salesData th, #salesData td {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header-action">
+            <h2><i class="fas fa-store"></i> Vendor Dashboard</h2>
+            <button class="btn btn-primary" onclick="window.location.href='home.html'">
+                <i class="fas fa-home"></i> Back to Home
+            </button>
+        </div>
+
+        <div class="mb-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h4 id="welcomeMessage">Welcome back, Vendor</h4>
+                    <p class="text-muted">Manage your inventory and track your sales</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab navigation -->
+        <ul class="nav nav-tabs mb-4" id="vendorTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab" aria-controls="inventory" aria-selected="true">
+                    <i class="fas fa-boxes"></i> Inventory Management
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab" aria-controls="categories" aria-selected="false">
+                    <i class="fas fa-tags"></i> Category Management
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab" aria-controls="orders" aria-selected="false">
+                    <i class="fas fa-shopping-cart"></i> Recent Orders
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab content -->
+        <div class="tab-content" id="vendorTabsContent">
+            <!-- Inventory Management Tab -->
+            <div class="tab-pane fade show active" id="inventory" role="tabpanel" aria-labelledby="inventory-tab">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-cubes"></i> Total Items</h5>
+                                <p id="totalItems" class="card-text h2">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-exclamation-triangle"></i> Out of Stock</h5>
+                                <p id="outOfStock" class="card-text h2">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-warning">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-battery-quarter"></i> Low Stock (< 10)</h5>
+                                <p id="lowStock" class="card-text h2">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5>Inventory Items</h5>
+                                <div>
+                                    <button class="btn btn-danger me-2" id="resetInventoryBtn">
+                                        <i class="fas fa-trash-alt"></i> Reset Inventory
+                                    </button>
+                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                                        <i class="fas fa-plus"></i> Add New Item
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Product Name</th>
+                                                <th>Category</th>
+                                                <th>Price (₹)</th>
+                                                <th>Quantity</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="inventoryTableBody">
+                                            <!-- Inventory data will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Inventory by Category</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Stock Levels</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="stockLevelChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Management Tab -->
+            <div class="tab-pane fade" id="categories" role="tabpanel" aria-labelledby="categories-tab">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5>Product Categories</h5>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                    <i class="fas fa-plus"></i> Add New Category
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Category Name</th>
+                                                <th>Description</th>
+                                                <th>Products Count</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="categoryTableBody">
+                                            <!-- Category data will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Category Stock Management Section -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Category Stock Levels</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Category</th>
+                                                <th>Total Products</th>
+                                                <th>In Stock</th>
+                                                <th>Low Stock</th>
+                                                <th>Out of Stock</th>
+                                                <th>Total Stock</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="categoryStockTableBody">
+                                            <!-- Category stock data will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Orders Tab -->
+            <div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5><i class="fas fa-shopping-cart"></i> Customer Orders</h5>
+                                <div>
+                                    <button class="btn btn-primary" id="refreshOrdersBtn">
+                                        <i class="fas fa-sync-alt"></i> Refresh Orders
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Order #</th>
+                                                <th>Date</th>
+                                                <th>Customer</th>
+                                                <th>Items</th>
+                                                <th>Total Amount</th>
+                                                <th>Delivery Address</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="ordersTableBody">
+                                            <!-- Order data will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="noOrdersMessage" class="text-center py-4" style="display: none;">
+                                    <p class="text-muted">No orders found.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addItemModalLabel">Add New Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addItemForm">
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="productName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" required>
+                                <option value="">Select Category</option>
+                                <option value="Fruits & Vegetables">Fruits & Vegetables</option>
+                                <option value="Dairy, Bread & Eggs">Dairy, Bread & Eggs</option>
+                                <option value="Cold Drink & Juices">Cold Drink & Juices</option>
+                                <option value="Snack & Munchies">Snack & Munchies</option>
+                                <option value="Bakery & Biscuit">Bakery & Biscuit</option>
+                                <option value="Tea, Coffee & Health Drink">Tea, Coffee & Health Drink</option>
+                                <option value="Atta, Rice & Dal">Atta, Rice & Dal</option>
+                                <option value="Masala, Oil & More">Masala, Oil & More</option>
+                                <option value="Sauces & Spreads">Sauces & Spreads</option>
+                                <option value="Chicken, Meat & Fish">Chicken, Meat & Fish</option>
+                                <option value="Organic & Healthy Living">Organic & Healthy Living</option>
+                                <option value="Baby Care">Baby Care</option>
+                                <option value="Pharma & Wellness">Pharma & Wellness</option>
+                                <option value="Cleaning Essentials">Cleaning Essentials</option>
+                                <option value="Home & Office">Home & Office</option>
+                                <option value="Personal Care">Personal Care</option>
+                                <option value="Pet Care">Pet Care</option>
+                                <option value="Paan Corner">Paan Corner</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Price (₹)</label>
+                            <input type="number" class="form-control" id="price" min="0" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity" min="0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveItemBtn">Save Item</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Quantity Modal -->
+    <div class="modal fade" id="editQuantityModal" tabindex="-1" aria-labelledby="editQuantityModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editQuantityModalLabel">Update Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editQuantityForm">
+                        <input type="hidden" id="editItemId">
+                        <div class="mb-3">
+                            <label for="itemName" class="form-label">Product</label>
+                            <input type="text" class="form-control" id="itemName" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="currentQuantity" class="form-label">Current Stock</label>
+                            <input type="number" class="form-control" id="currentQuantity" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newQuantity" class="form-label">New Stock Quantity</label>
+                            <input type="number" class="form-control" id="newQuantity" min="0" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="updateQuantityBtn">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCategoryForm">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Category Name</label>
+                            <input type="text" class="form-control" id="categoryName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="categoryDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="categoryImage" class="form-label">Image URL</label>
+                            <input type="text" class="form-control" id="categoryImage" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addNewCategory()">Add Category</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Category Modal -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editCategoryForm">
+                        <input type="hidden" id="editCategoryId">
+                        <div class="mb-3">
+                            <label for="editCategoryName" class="form-label">Category Name</label>
+                            <input type="text" class="form-control" id="editCategoryName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCategoryDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editCategoryDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCategoryImage" class="form-label">Image URL</label>
+                            <input type="text" class="form-control" id="editCategoryImage">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateCategory()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Stock Management Modal -->
+    <div class="modal fade" id="categoryStockModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Category Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h4 id="categoryStockTitle">Category: </h4>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5>Products in Category</h5>
+                            <div>
+                                <button class="btn btn-warning btn-sm" id="bulkIncreaseBtn">
+                                    <i class="fas fa-plus"></i> Increase All by 5
+                                </button>
+                                <button class="btn btn-danger btn-sm ms-2" id="bulkDecreaseBtn">
+                                    <i class="fas fa-minus"></i> Decrease All by 5
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Product Name</th>
+                                        <th>Price (₹)</th>
+                                        <th>Current Stock</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoryProductsTableBody">
+                                    <!-- Products will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="order-info mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Order Number:</strong> <span id="orderDetailNumber"></span></p>
+                                <p><strong>Order Date:</strong> <span id="orderDetailDate"></span></p>
+                                <p><strong>Customer:</strong> <span id="orderDetailCustomer"></span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Status:</strong> <span id="orderDetailStatus"></span></p>
+                                <p><strong>Total Amount:</strong> <span id="orderDetailTotal"></span></p>
+                                <p><strong>Delivery Address:</strong> <span id="orderDetailAddress"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h6 class="mb-3">Ordered Items</h6>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderItemsBody">
+                                <!-- Order items will be displayed here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group w-100">
+                        <button class="btn btn-success" id="markDeliveredBtn">
+                            <i class="fas fa-check"></i> Mark as Delivered
+                        </button>
+                        <button class="btn btn-danger ms-2" id="cancelOrderBtn">
+                            <i class="fas fa-times"></i> Cancel Order
+                        </button>
+                        <button class="btn btn-secondary ms-2" data-bs-dismiss="modal">
+                            <i class="fas fa-times"></i> Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if all required libraries are loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM fully loaded, initializing dashboard...");
+            
+            if (typeof bootstrap === 'undefined') {
+                console.error("Bootstrap JavaScript library is not loaded!");
+                alert("Bootstrap JavaScript library is missing. The dashboard won't function properly.");
+            } else {
+                console.log("Bootstrap library loaded successfully");
+            }
+            
+            if (typeof Chart === 'undefined') {
+                console.error("Chart.js library is not loaded!");
+                alert("Chart.js library is missing. Charts won't be displayed.");
+            } else {
+                console.log("Chart.js library loaded successfully");
+            }
+            
+            // Initialize dashboard with short delay to ensure DOM is ready
+            setTimeout(initializeDashboard, 50);
+        });
+        
+        // Fallback initialization in case DOMContentLoaded doesn't fire properly
+        let dashboardInitialized = false;
+        window.onload = function() {
+            if (!dashboardInitialized) {
+                console.log("Window fully loaded, initializing dashboard (fallback)...");
+                dashboardInitialized = true;
+                initializeDashboard();
+            }
+        };
+        
+        // Separate initialization function
+        function initializeDashboard() {
+            console.log("Initializing VendorDashboard...");
+            try {
+                // Get user from localStorage
+                const userName = localStorage.getItem("userName");
+                if (userName) {
+                    document.getElementById('welcomeMessage').textContent = 'Welcome back, ' + userName;
+                }
+                
+                // Add event listeners
+                document.getElementById('resetInventoryBtn').addEventListener('click', confirmResetInventory);
+                document.getElementById('refreshOrdersBtn').addEventListener('click', renderOrdersTable);
+                document.getElementById('saveItemBtn').addEventListener('click', addNewItem);
+                document.getElementById('updateQuantityBtn').addEventListener('click', updateItemQuantity);
+                
+                console.log("Event listeners set up successfully");
+                
+                // Load data
+                console.log("Loading inventory data...");
+                
+                // First check if inventory exists in localStorage
+                const storedInventory = localStorage.getItem("vendorInventory");
+                if (!storedInventory || JSON.parse(storedInventory).length === 0) {
+                    console.log("No inventory found, setting up default inventory");
+                    resetInventoryToDefault();
+                } else {
+                    console.log("Inventory found in localStorage");
+                    inventory = JSON.parse(storedInventory);
+                }
+                
+                console.log("Loaded inventory:", inventory.length, "items");
+                
+                // Generate categories from inventory
+                const categorySet = new Set(inventory.map(item => item.category));
+                categories = Array.from(categorySet).map((name, index) => ({ 
+                    id: index + 1, 
+                    name: name,
+                    description: `${name} products` 
+                }));
+                console.log("Generated categories:", categories.length, "categories");
+                
+                // Render everything
+                updateDashboardStats();
+                renderInventoryTable();
+                renderCategoriesTable();
+                renderCategoryStockTable();
+                
+                // Make sure charts are rendered last and after a short delay
+                // to ensure canvas elements are fully rendered
+                setTimeout(() => {
+                    console.log("Rendering charts after delay...");
+                    renderCharts();
+                }, 100);
+                
+                renderOrdersTable();
+                
+                console.log("Dashboard initialized successfully");
+            } catch (error) {
+                console.error("Error initializing dashboard:", error);
+                alert("There was an error loading the dashboard. Please check the console for details.");
+            }
+        }
+        
+        // API Base URL - replace if needed
+        const API_BASE_URL = 'http://localhost:5003/api';
+        
+        // Initialize data structures
+        let inventory = [];
+        let categories = [];
+        
+        // Load inventory data from API or localStorage
+        async function loadInventory() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/products`);
+                if (response.ok) {
+                    inventory = await response.json();
+                    
+                    // Update UI
+                    updateDashboardStats();
+                    renderInventoryTable();
+                    renderCharts();
+                } else {
+                    // Fallback to localStorage if API fails
+                    inventory = JSON.parse(localStorage.getItem("vendorInventory")) || [
+                        // Fruits & Vegetables
+                        { id: 1, name: "Apple", category: "Fruits & Vegetables", price: 160, quantity: 45, size: "1 kg" },
+                        { id: 2, name: "Banana", category: "Fruits & Vegetables", price: 60, quantity: 25, size: "1 dozen" },
+                        { id: 3, name: "Onion", category: "Fruits & Vegetables", price: 38, quantity: 20, size: "1 kg" },
+                        { id: 4, name: "Potato", category: "Fruits & Vegetables", price: 37, quantity: 30, size: "1 kg" },
+                        { id: 5, name: "Tomato", category: "Fruits & Vegetables", price: 30, quantity: 0, size: "500 g" },
+                        { id: 6, name: "Carrot", category: "Fruits & Vegetables", price: 60, quantity: 5, size: "500 g" },
+                        { id: 7, name: "Cucumber", category: "Fruits & Vegetables", price: 40, quantity: 18, size: "500 g" },
+                        { id: 8, name: "Bell Pepper", category: "Fruits & Vegetables", price: 90, quantity: 8, size: "250 g" },
+                        { id: 9, name: "Spinach", category: "Fruits & Vegetables", price: 30, quantity: 0, size: "250 g" },
+                        { id: 10, name: "Cabbage", category: "Fruits & Vegetables", price: 45, quantity: 15, size: "1 piece" },
+                        
+                        // Dairy, Bread & Eggs
+                        { id: 11, name: "Milk", category: "Dairy, Bread & Eggs", price: 58, quantity: 25, size: "500 ml" },
+                        { id: 12, name: "Bread", category: "Dairy, Bread & Eggs", price: 40, quantity: 8, size: "1 loaf" },
+                        { id: 13, name: "Eggs", category: "Dairy, Bread & Eggs", price: 72, quantity: 15, size: "6 pcs" },
+                        { id: 14, name: "Cheese", category: "Dairy, Bread & Eggs", price: 120, quantity: 12, size: "200 g" },
+                        { id: 15, name: "Butter", category: "Dairy, Bread & Eggs", price: 95, quantity: 8, size: "100 g" },
+                        { id: 16, name: "Yogurt", category: "Dairy, Bread & Eggs", price: 40, quantity: 0, size: "200 g" },
+                        { id: 17, name: "Paneer", category: "Dairy, Bread & Eggs", price: 80, quantity: 5, size: "200 g" },
+                        
+                        // Cold Drink & Juices
+                        { id: 18, name: "Coca Cola", category: "Cold Drink & Juices", price: 40, quantity: 0, size: "750 ml" },
+                        { id: 19, name: "Pepsi", category: "Cold Drink & Juices", price: 38, quantity: 15, size: "750 ml" },
+                        { id: 20, name: "Orange Juice", category: "Cold Drink & Juices", price: 80, quantity: 12, size: "1 L" },
+                        { id: 21, name: "Sprite", category: "Cold Drink & Juices", price: 40, quantity: 20, size: "750 ml" },
+                        { id: 22, name: "Thumbs Up", category: "Cold Drink & Juices", price: 40, quantity: 10, size: "750 ml" },
+                        { id: 23, name: "Maaza", category: "Cold Drink & Juices", price: 45, quantity: 8, size: "750 ml" },
+                        { id: 24, name: "Mixed Fruit Juice", category: "Cold Drink & Juices", price: 85, quantity: 6, size: "1 L" },
+                        
+                        // Snack & Munchies
+                        { id: 25, name: "Lays Chips", category: "Snack & Munchies", price: 30, quantity: 18, size: "52 g" },
+                        { id: 26, name: "Kurkure", category: "Snack & Munchies", price: 20, quantity: 7, size: "90 g" },
+                        { id: 27, name: "Doritos", category: "Snack & Munchies", price: 50, quantity: 12, size: "60 g" },
+                        { id: 28, name: "Pringles", category: "Snack & Munchies", price: 95, quantity: 0, size: "107 g" },
+                        { id: 29, name: "Bhujia", category: "Snack & Munchies", price: 65, quantity: 5, size: "150 g" },
+                        
+                        // Bakery & Biscuit
+                        { id: 30, name: "Parle-G", category: "Bakery & Biscuit", price: 25, quantity: 30, size: "250 g" },
+                        { id: 31, name: "Hide & Seek", category: "Bakery & Biscuit", price: 30, quantity: 15, size: "120 g" },
+                        { id: 32, name: "Bourbon", category: "Bakery & Biscuit", price: 30, quantity: 12, size: "150 g" },
+                        { id: 33, name: "Dark Fantasy", category: "Bakery & Biscuit", price: 40, quantity: 0, size: "100 g" },
+                        { id: 34, name: "Marie Gold", category: "Bakery & Biscuit", price: 25, quantity: 18, size: "250 g" }
+                    ];
+                    
+                    // Save to localStorage
+                    localStorage.setItem("vendorInventory", JSON.stringify(inventory));
+                    
+                    // Update UI
+                    updateDashboardStats();
+                    renderInventoryTable();
+                    renderCharts();
+                }
+            } catch (error) {
+                console.error("Error loading inventory:", error);
+                // Fallback to localStorage if API fails
+                inventory = JSON.parse(localStorage.getItem("vendorInventory")) || [];
+                
+                if (inventory.length === 0) {
+                    // If no data in localStorage, set up sample data
+                    resetInventoryToDefault();
+                } else {
+                    // Update UI
+                    updateDashboardStats();
+                    renderInventoryTable();
+                    renderCharts();
+                }
+            }
+        }
+        
+        // Load categories from API or generate from inventory
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/categories`);
+                if (response.ok) {
+                    categories = await response.json();
+                } else {
+                    throw new Error("Failed to fetch categories");
+                }
+            } catch (error) {
+                console.error("Error loading categories:", error);
+                // Generate categories from inventory if API fails
+                const categorySet = new Set(inventory.map(item => item.category));
+                categories = Array.from(categorySet).map((name, index) => ({ 
+                    id: index + 1, 
+                    name: name,
+                    description: `${name} products` 
+                }));
+            }
+            
+            // Update UI
+            renderCategoriesTable();
+        }
+        
+        // Update dashboard stats
+        function updateDashboardStats() {
+            const totalItems = inventory.length;
+            const outOfStockCount = inventory.filter(item => item.quantity <= 0).length;
+            const lowStockCount = inventory.filter(item => item.quantity > 0 && item.quantity < 10).length;
+            
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('outOfStock').textContent = outOfStockCount;
+            document.getElementById('lowStock').textContent = lowStockCount;
+        }
+        
+        // Render inventory table
+        function renderInventoryTable() {
+            const tableBody = document.getElementById('inventoryTableBody');
+            tableBody.innerHTML = '';
+            
+            inventory.forEach(item => {
+                const row = document.createElement('tr');
+                
+                // Determine status badge
+                let statusBadge = '';
+                if (item.quantity <= 0) {
+                    statusBadge = '<span class="badge bg-danger">Out of Stock</span>';
+                } else if (item.quantity < 10) {
+                    statusBadge = '<span class="badge bg-warning">Low Stock</span>';
+                } else {
+                    statusBadge = '<span class="badge bg-success">In Stock</span>';
+                }
+                
+                row.innerHTML = `
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.category}</td>
+                    <td>₹${item.price.toFixed(2)}</td>
+                    <td>${item.quantity}</td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning edit-quantity" data-id="${item.id}">
+                            <i class="fas fa-edit"></i> Edit Stock
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Add event listeners to edit buttons
+            document.querySelectorAll('.edit-quantity').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemId = parseInt(this.getAttribute('data-id'));
+                    openEditQuantityModal(itemId);
+                });
+            });
+        }
+        
+        // Render categories table
+        function renderCategoriesTable() {
+            const tableBody = document.getElementById('categoryTableBody');
+            tableBody.innerHTML = '';
+            
+            categories.forEach(category => {
+                const productsCount = inventory.filter(item => item.category === category.name).length;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${category.id}</td>
+                    <td>${category.name}</td>
+                    <td>${category.description || ''}</td>
+                    <td>${productsCount}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning edit-category" data-id="${category.id}">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-sm btn-primary ms-1 view-category-stock" data-category="${category.name}">
+                            <i class="fas fa-boxes"></i> View Stock
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Add event listeners
+            document.querySelectorAll('.edit-category').forEach(button => {
+                button.addEventListener('click', function() {
+                    const categoryId = parseInt(this.getAttribute('data-id'));
+                    openEditCategoryModal(categoryId);
+                });
+            });
+            
+            document.querySelectorAll('.view-category-stock').forEach(button => {
+                button.addEventListener('click', function() {
+                    const categoryName = this.getAttribute('data-category');
+                    openCategoryStockModal(categoryName);
+                });
+            });
+        }
+        
+        // Render category stock table
+        function renderCategoryStockTable() {
+            const tableBody = document.getElementById('categoryStockTableBody');
+            tableBody.innerHTML = '';
+            
+            // Group items by category
+            const categoryMap = {};
+            
+            inventory.forEach(item => {
+                if (!categoryMap[item.category]) {
+                    categoryMap[item.category] = {
+                        name: item.category,
+                        products: [],
+                        totalStock: 0,
+                        inStock: 0,
+                        lowStock: 0,
+                        outOfStock: 0
+                    };
+                }
+                
+                categoryMap[item.category].products.push(item);
+                categoryMap[item.category].totalStock += item.quantity;
+                
+                if (item.quantity <= 0) {
+                    categoryMap[item.category].outOfStock++;
+                } else if (item.quantity < 10) {
+                    categoryMap[item.category].lowStock++;
+                } else {
+                    categoryMap[item.category].inStock++;
+                }
+            });
+            
+            // Create rows for each category
+            Object.values(categoryMap).forEach(category => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${category.name}</td>
+                    <td>${category.products.length}</td>
+                    <td>${category.inStock}</td>
+                    <td>${category.lowStock}</td>
+                    <td>${category.outOfStock}</td>
+                    <td>${category.totalStock}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary view-category-stock" data-category="${category.name}">
+                            <i class="fas fa-search"></i> View Details
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Add event listeners
+            document.querySelectorAll('.view-category-stock').forEach(button => {
+                button.addEventListener('click', function() {
+                    const categoryName = this.getAttribute('data-category');
+                    openCategoryStockModal(categoryName);
+                });
+            });
+        }
+        
+        // Render charts
+        function renderCharts() {
+            try {
+                console.log("Rendering charts...");
+                
+                // Check if Chart.js is loaded
+                if (typeof Chart === 'undefined') {
+                    console.error("Chart.js is not loaded. Charts will not be rendered.");
+                    return;
+                }
+                
+                // Check if canvas elements exist
+                const categoryChartElement = document.getElementById('categoryChart');
+                const stockLevelChartElement = document.getElementById('stockLevelChart');
+                
+                if (!categoryChartElement) {
+                    console.error("Category chart canvas element not found");
+                } else {
+                    // Make sure canvas is clear before rendering
+                    const categoryChartContext = categoryChartElement.getContext('2d');
+                    categoryChartContext.clearRect(0, 0, categoryChartElement.width, categoryChartElement.height);
+                    renderCategoryChart();
+                }
+                
+                if (!stockLevelChartElement) {
+                    console.error("Stock level chart canvas element not found");
+                } else {
+                    // Make sure canvas is clear before rendering
+                    const stockLevelChartContext = stockLevelChartElement.getContext('2d');
+                    stockLevelChartContext.clearRect(0, 0, stockLevelChartElement.width, stockLevelChartElement.height);
+                    renderStockLevelChart();
+                }
+                
+                console.log("Charts rendered successfully");
+            } catch (error) {
+                console.error("Error rendering charts:", error);
+            }
+        }
+        
+        // Render category chart
+        function renderCategoryChart() {
+            try {
+                const ctx = document.getElementById('categoryChart').getContext('2d');
+                
+                // Group items by category
+                const categoryData = {};
+                inventory.forEach(item => {
+                    if (!categoryData[item.category]) {
+                        categoryData[item.category] = 0;
+                    }
+                    categoryData[item.category]++;
+                });
+                
+                // Prepare chart data
+                const labels = Object.keys(categoryData);
+                const data = Object.values(categoryData);
+                
+                // Generate colors
+                const colors = labels.map((_, index) => {
+                    const colorSet = [
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(255, 205, 86, 0.7)'
+                    ];
+                    return colorSet[index % colorSet.length];
+                });
+                
+                // Destroy existing chart if it exists
+                if (window.categoryChart instanceof Chart) {
+                    window.categoryChart.destroy();
+                }
+                
+                // Create chart
+                window.categoryChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Products by Category'
+                            }
+                        }
+                    }
+                });
+                
+                console.log("Category chart rendered successfully");
+            } catch (error) {
+                console.error("Error rendering category chart:", error);
+            }
+        }
+        
+        // Render stock level chart
+        function renderStockLevelChart() {
+            try {
+                const ctx = document.getElementById('stockLevelChart').getContext('2d');
+                
+                // Count stock levels
+                const inStock = inventory.filter(item => item.quantity >= 10).length;
+                const lowStock = inventory.filter(item => item.quantity > 0 && item.quantity < 10).length;
+                const outOfStock = inventory.filter(item => item.quantity <= 0).length;
+                
+                // Destroy existing chart if it exists
+                if (window.stockLevelChart instanceof Chart) {
+                    window.stockLevelChart.destroy();
+                }
+                
+                // Create chart
+                window.stockLevelChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['In Stock', 'Low Stock', 'Out of Stock'],
+                        datasets: [{
+                            label: 'Product Count',
+                            data: [inStock, lowStock, outOfStock],
+                            backgroundColor: [
+                                'rgba(40, 167, 69, 0.7)',
+                                'rgba(255, 193, 7, 0.7)',
+                                'rgba(220, 53, 69, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(40, 167, 69, 1)',
+                                'rgba(255, 193, 7, 1)',
+                                'rgba(220, 53, 69, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Stock Level Overview'
+                            }
+                        }
+                    }
+                });
+                
+                console.log("Stock level chart rendered successfully");
+            } catch (error) {
+                console.error("Error rendering stock level chart:", error);
+            }
+        }
+        
+        // Open edit quantity modal
+        function openEditQuantityModal(itemId) {
+            const item = inventory.find(i => i.id === itemId);
+            if (item) {
+                document.getElementById('editItemId').value = item.id;
+                document.getElementById('itemName').value = item.name;
+                document.getElementById('currentQuantity').value = item.quantity;
+                document.getElementById('newQuantity').value = item.quantity;
+                
+                // Open modal
+                const modal = new bootstrap.Modal(document.getElementById('editQuantityModal'));
+                modal.show();
+            }
+        }
+        
+        // Open category stock modal
+        function openCategoryStockModal(categoryName) {
+            // Set category title
+            document.getElementById('categoryStockTitle').textContent = `Category: ${categoryName}`;
+            
+            // Get products in this category
+            const categoryProducts = inventory.filter(item => item.category === categoryName);
+            
+            // Populate table
+            const tableBody = document.getElementById('categoryProductsTableBody');
+            tableBody.innerHTML = '';
+            
+            categoryProducts.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.id}</td>
+                    <td>${product.name}</td>
+                    <td>₹${product.price.toFixed(2)}</td>
+                    <td>${product.quantity}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning edit-quantity" data-id="${product.id}">
+                            <i class="fas fa-edit"></i> Edit Stock
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Setup bulk actions
+            document.getElementById('bulkIncreaseBtn').onclick = function() {
+                updateCategoryStock(categoryName, 5);
+            };
+            
+            document.getElementById('bulkDecreaseBtn').onclick = function() {
+                updateCategoryStock(categoryName, -5);
+            };
+            
+            // Setup edit buttons
+            tableBody.querySelectorAll('.edit-quantity').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemId = parseInt(this.getAttribute('data-id'));
+                    openEditQuantityModal(itemId);
+                    
+                    // Close the current modal
+                    bootstrap.Modal.getInstance(document.getElementById('categoryStockModal')).hide();
+                });
+            });
+            
+            // Open modal
+            const modal = new bootstrap.Modal(document.getElementById('categoryStockModal'));
+            modal.show();
+        }
+        
+        // Update category stock (bulk)
+        function updateCategoryStock(categoryName, change) {
+            // Find products in this category
+            inventory.forEach(item => {
+                if (item.category === categoryName) {
+                    item.quantity = Math.max(0, item.quantity + change);
+                }
+            });
+            
+            // Save updated inventory
+            localStorage.setItem("vendorInventory", JSON.stringify(inventory));
+            
+            // Update UI
+            updateDashboardStats();
+            renderInventoryTable();
+            renderCategoryStockTable();
+            
+            // Refresh the modal content
+            openCategoryStockModal(categoryName);
+            
+            // Show notification
+            showNotification(`${categoryName} stock updated successfully`);
+        }
+        
+        // Add new item
+        function addNewItem() {
+            // Get form data
+            const name = document.getElementById('productName').value.trim();
+            const category = document.getElementById('category').value;
+            const price = parseFloat(document.getElementById('price').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const description = document.getElementById('description').value.trim();
+            
+            // Validate inputs
+            if (!name || !category || isNaN(price) || isNaN(quantity)) {
+                alert('Please fill all required fields');
+                return;
+            }
+            
+            // Generate new ID
+            const nextId = inventory.length > 0 ? Math.max(...inventory.map(item => item.id)) + 1 : 1;
+            
+            // Create new item
+            const newItem = {
+                id: nextId,
+                name: name,
+                category: category,
+                price: price,
+                quantity: quantity,
+                description: description
+            };
+            
+            // Add to inventory
+            inventory.push(newItem);
+            
+            // Save updated inventory
+            localStorage.setItem("vendorInventory", JSON.stringify(inventory));
+            
+            // Update UI
+            updateDashboardStats();
+            renderInventoryTable();
+            renderCategoryStockTable();
+            renderCharts();
+            
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('addItemModal')).hide();
+            
+            // Reset form
+            document.getElementById('addItemForm').reset();
+            
+            // Show notification
+            showNotification(`Item "${name}" added successfully`);
+        }
+        
+        // Update item quantity
+        function updateItemQuantity() {
+            const itemId = parseInt(document.getElementById('editItemId').value);
+            const newQuantity = parseInt(document.getElementById('newQuantity').value);
+            
+            if (isNaN(newQuantity) || newQuantity < 0) {
+                alert('Please enter a valid quantity');
+                return;
+            }
+            
+            // Find and update item
+            const itemIndex = inventory.findIndex(item => item.id === itemId);
+            if (itemIndex !== -1) {
+                inventory[itemIndex].quantity = newQuantity;
+                
+                // Save updated inventory
+                localStorage.setItem("vendorInventory", JSON.stringify(inventory));
+                
+                // Update UI
+                updateDashboardStats();
+                renderInventoryTable();
+                renderCategoryStockTable();
+                renderCharts();
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('editQuantityModal')).hide();
+                
+                // Show notification
+                showNotification(`Stock updated for "${inventory[itemIndex].name}"`);
+            }
+        }
+        
+        // Reset inventory to default
+        function resetInventoryToDefault() {
+            try {
+                console.log("Resetting inventory to default values...");
+                
+                // Default inventory data with products from all categories
+                inventory = [
+                    // Fruits & Vegetables
+                    { id: 1, name: "Onion (Pyaz)", category: "Fruits & Vegetables", price: 30, quantity: 25, size: "0.95 - 1.05 kg", image: "img/2/1.png" },
+                    { id: 2, name: "Potato (Aloo)", category: "Fruits & Vegetables", price: 32, quantity: 18, size: "1 kg", image: "img/2/2.png" },
+                    { id: 3, name: "Tomato (Tamatar)", category: "Fruits & Vegetables", price: 22, quantity: 12, size: "500 g", image: "img/2/3.png" },
+                    { id: 4, name: "Carrot (Gajar)", category: "Fruits & Vegetables", price: 29, quantity: 8, size: "500 g", image: "img/2/4.png" },
+                    { id: 5, name: "Cauliflower (Phool Gobhi)", category: "Fruits & Vegetables", price: 25, quantity: 5, size: "400-600 g", image: "img/2/5.png" },
+                    { id: 6, name: "Cabbage (Patta Gobhi)", category: "Fruits & Vegetables", price: 21, quantity: 0, size: "400-600 g", image: "img/2/6.png" },
+                    { id: 7, name: "Lemon (Nimbu)", category: "Fruits & Vegetables", price: 59, quantity: 3, size: "250 g", image: "img/2/7.png" },
+                    { id: 8, name: "Spinach (Palak)", category: "Fruits & Vegetables", price: 32, quantity: 15, size: "1 bunch", image: "img/2/8.png" },
+                    { id: 9, name: "Green Chilli (Hari Mirch)", category: "Fruits & Vegetables", price: 23, quantity: 20, size: "100 g", image: "img/2/9.png" },
+                    { id: 10, name: "Garlic (Lehsun)", category: "Fruits & Vegetables", price: 41, quantity: 10, size: "200 g", image: "img/2/10.png" },
+                    { id: 11, name: "Banana", category: "Fruits & Vegetables", price: 34, quantity: 25, size: "4 pieces", image: "img/2/11.png" },
+                    { id: 12, name: "Tender Coconut", category: "Fruits & Vegetables", price: 170, quantity: 7, size: "2 pieces", image: "img/2/12.png" },
+                    { id: 13, name: "Grapes", category: "Fruits & Vegetables", price: 94, quantity: 0, size: "500 g", image: "img/2/13.png" },
+                    { id: 14, name: "Watermelon", category: "Fruits & Vegetables", price: 86, quantity: 8, size: "1 piece", image: "img/2/14.png" },
+                    { id: 15, name: "Small Shimla Apple", category: "Fruits & Vegetables", price: 135, quantity: 14, size: "500 g", image: "img/2/15.png" },
+                    { id: 16, name: "Chikoo", category: "Fruits & Vegetables", price: 44, quantity: 6, size: "400-500 g", image: "img/2/16.png" },
+                    { id: 17, name: "Papaya", category: "Fruits & Vegetables", price: 84, quantity: 9, size: "0.7-1.3 kg", image: "img/2/17.png" },
+                    { id: 18, name: "Guava", category: "Fruits & Vegetables", price: 87, quantity: 11, size: "500-700 g", image: "img/2/18.png" },
+                    { id: 19, name: "Safeda Mango", category: "Fruits & Vegetables", price: 115, quantity: 0, size: "2 pieces", image: "img/2/19.png" },
+                    { id: 20, name: "Pineapple", category: "Fruits & Vegetables", price: 80, quantity: 7, size: "800-1000 g", image: "img/2/20.png" },
+                    
+                    // Dairy, Bread & Eggs
+                    { id: 21, name: "Amul Gold Full Cream Fresh Milk", category: "Dairy, Bread & Eggs", price: 34, quantity: 22, size: "500 ml", image: "img/1/1.png" },
+                    { id: 22, name: "Amul Taza Toned Fresh Milk", category: "Dairy, Bread & Eggs", price: 55, quantity: 18, size: "1 ltr", image: "img/1/2.png" },
+                    { id: 23, name: "Amul Cow fresh Milk", category: "Dairy, Bread & Eggs", price: 29, quantity: 12, size: "500 ml", image: "img/1/3.png" },
+                    { id: 24, name: "Mother Dairy Cow Fresh Milk", category: "Dairy, Bread & Eggs", price: 57, quantity: 7, size: "1 ltr", image: "img/1/4.png" },
+                    { id: 25, name: "Amul A2 Buffalo Fresh Milk", category: "Dairy, Bread & Eggs", price: 37, quantity: 0, size: "500 ml", image: "img/1/5.png" },
+                    { id: 26, name: "Harvest Gold - White Bread", category: "Dairy, Bread & Eggs", price: 30, quantity: 25, size: "350 g", image: "img/1/6.png" },
+                    { id: 27, name: "Harvest Gold 100% Atta Whole Wheat Bread", category: "Dairy, Bread & Eggs", price: 60, quantity: 15, size: "450 g", image: "img/1/7.png" },
+                    { id: 28, name: "Harvest Gold White Bread", category: "Dairy, Bread & Eggs", price: 60, quantity: 9, size: "700 g", image: "img/1/8.png" },
+                    { id: 29, name: "Harvest Gold Hearty Brown Bread", category: "Dairy, Bread & Eggs", price: 55, quantity: 12, size: "400 g", image: "img/1/9.png" },
+                    { id: 30, name: "English Oven Premium White Bread", category: "Dairy, Bread & Eggs", price: 60, quantity: 8, size: "700 g", image: "img/1/10.png" },
+                    { id: 31, name: "Table White Eggs", category: "Dairy, Bread & Eggs", price: 73, quantity: 30, size: "10 pieces", image: "img/1/11.png" },
+                    { id: 32, name: "Table White Eggs", category: "Dairy, Bread & Eggs", price: 45, quantity: 28, size: "6 pieces", image: "img/1/12.png" },
+                    { id: 33, name: "Eggoz Nutrition Protein Rich Brown Eggs", category: "Dairy, Bread & Eggs", price: 106, quantity: 14, size: "10 pieces", image: "img/1/13.png" },
+                    { id: 34, name: "Hen Fruit White Protein Rich Eggs", category: "Dairy, Bread & Eggs", price: 96, quantity: 0, size: "10 pieces", image: "img/1/14.png" },
+                    { id: 35, name: "Abhi Gold+ Brown Eggs", category: "Dairy, Bread & Eggs", price: 88, quantity: 5, size: "6 pieces", image: "img/1/15.png" },
+                    { id: 36, name: "Amul Fresh Malai Paneer", category: "Dairy, Bread & Eggs", price: 91, quantity: 18, size: "200 g", image: "img/1/16.png" },
+                    { id: 37, name: "Mother Dairy Paneer", category: "Dairy, Bread & Eggs", price: 95, quantity: 10, size: "200 g", image: "img/1/17.png" },
+                    { id: 38, name: "Mother Dairy Malai Paneer", category: "Dairy, Bread & Eggs", price: 100, quantity: 5, size: "200 g", image: "img/1/18.png" },
+                    { id: 39, name: "Country Delight Taaza Paneer", category: "Dairy, Bread & Eggs", price: 127, quantity: 0, size: "180 g", image: "img/1/19.png" },
+                    { id: 40, name: "Ananda Premium Paneer", category: "Dairy, Bread & Eggs", price: 100, quantity: 7, size: "200 g", image: "img/1/20.png" },
+                    { id: 41, name: "Amul Masti Pouch Curd", category: "Dairy, Bread & Eggs", price: 35, quantity: 12, size: "400 g", image: "img/1/21.png" },
+                    { id: 42, name: "Mother Dairy Classic Pouch Curd", category: "Dairy, Bread & Eggs", price: 35, quantity: 15, size: "400 g", image: "img/1/22.png" },
+                    { id: 43, name: "Mother Dairy Classic Curd", category: "Dairy, Bread & Eggs", price: 75, quantity: 8, size: "1 kg", image: "img/1/23.png" },
+                    { id: 44, name: "Mother Dairy Classic Cup Curd", category: "Dairy, Bread & Eggs", price: 50, quantity: 10, size: "400 g", image: "img/1/24.png" },
+                    
+                    // Cold Drink & Juices
+                    { id: 45, name: "Thums Up Soft Drink", category: "Cold Drink & Juices", price: 40, quantity: 25, size: "750 ml", image: "img/3/1.png" },
+                    { id: 46, name: "Coca-Cola Soft Drink", category: "Cold Drink & Juices", price: 40, quantity: 18, size: "750 ml", image: "img/3/2.png" },
+                    { id: 47, name: "Coca-Cola Diet Coke Soft Drink", category: "Cold Drink & Juices", price: 40, quantity: 10, size: "300 ml", image: "img/3/3.png" },
+                    { id: 48, name: "7UP Nimbooz with Lemon Juice", category: "Cold Drink & Juices", price: 25, quantity: 15, size: "350 ml", image: "img/3/22.png" },
+                    { id: 49, name: "Limca Lemon N Lime Soft Drink", category: "Cold Drink & Juices", price: 40, quantity: 0, size: "750 ml", image: "img/3/4.png" },
+                    { id: 50, name: "Sprite Lime Flavoured Soft Drink", category: "Cold Drink & Juices", price: 40, quantity: 20, size: "750 ml", image: "img/3/5.png" },
+                    { id: 51, name: "Fanta Orange Soft Drink", category: "Cold Drink & Juices", price: 40, quantity: 12, size: "750 ml", image: "img/3/6.png" },
+                    { id: 52, name: "Real Fruit Power Mixed Fruit Juice", category: "Cold Drink & Juices", price: 121, quantity: 8, size: "1 ltr", image: "img/3/8.png" },
+                    { id: 53, name: "Real Fruit Power Cranberry Juice", category: "Cold Drink & Juices", price: 121, quantity: 5, size: "1 ltr", image: "img/3/9.png" },
+                    { id: 54, name: "Real Fruit Power Orange Juice", category: "Cold Drink & Juices", price: 121, quantity: 7, size: "1 ltr", image: "img/3/10.png" },
+                    { id: 55, name: "Real Fruit Power Pineapple Juice", category: "Cold Drink & Juices", price: 121, quantity: 0, size: "1 ltr", image: "img/3/11.png" },
+                    { id: 56, name: "Real Fruit Power Guava Juice", category: "Cold Drink & Juices", price: 121, quantity: 9, size: "1 ltr", image: "img/3/12.png" },
+                    { id: 57, name: "Real Fruit Power Litchi Juice", category: "Cold Drink & Juices", price: 121, quantity: 4, size: "1 ltr", image: "img/3/13.png" },
+                    { id: 58, name: "Real Fruit Power Pomegranate Juice", category: "Cold Drink & Juices", price: 121, quantity: 6, size: "1 ltr", image: "img/3/14.png" },
+                    { id: 59, name: "Real Fruit Power Apple Juice", category: "Cold Drink & Juices", price: 121, quantity: 11, size: "1 ltr", image: "img/3/16.png" },
+                    { id: 60, name: "Red Bull Energy Drink", category: "Cold Drink & Juices", price: 125, quantity: 15, size: "250 ml", image: "img/3/17.png" },
+                    { id: 61, name: "Monster Energy Drink", category: "Cold Drink & Juices", price: 95, quantity: 8, size: "350 ml", image: "img/3/18.png" },
+                    { id: 62, name: "Gatorade Blue Bolt Zero Sugar Energy Drink", category: "Cold Drink & Juices", price: 50, quantity: 0, size: "500 ml", image: "img/3/19.png" },
+                    { id: 63, name: "Gatorade Lemon Zero Sugar Energy Drink", category: "Cold Drink & Juices", price: 50, quantity: 3, size: "500 ml", image: "img/3/20.png" },
+                    { id: 64, name: "Sting Energy Drink", category: "Cold Drink & Juices", price: 20, quantity: 25, size: "250 ml", image: "img/3/21.png" },
+                    
+                    // Snack & Munchies
+                    { id: 65, name: "Lays Classic Salted Chips", category: "Snack & Munchies", price: 20, quantity: 30, size: "52 g", image: "img/4/1.png" },
+                    { id: 66, name: "Lays India's Magic Masala Chips", category: "Snack & Munchies", price: 20, quantity: 25, size: "52 g", image: "img/4/2.png" },
+                    { id: 67, name: "Lays American Style Cream & Onion Chips", category: "Snack & Munchies", price: 20, quantity: 18, size: "52 g", image: "img/4/3.png" },
+                    { id: 68, name: "Bingo! Tedhe Medhe Masala Sticks", category: "Snack & Munchies", price: 20, quantity: 12, size: "90 g", image: "img/4/4.png" },
+                    { id: 69, name: "Kurkure Masala Munch Snack", category: "Snack & Munchies", price: 20, quantity: 0, size: "90 g", image: "img/4/5.png" },
+                    { id: 70, name: "Bingo! Mad Angles Achaari Masti", category: "Snack & Munchies", price: 20, quantity: 8, size: "80 g", image: "img/4/6.png" },
+                    
+                    // Bakery & Biscuit
+                    { id: 71, name: "Britannia Good Day Cashew Cookies", category: "Bakery & Biscuit", price: 30, quantity: 22, size: "200 g", image: "img/5/1.png" },
+                    { id: 72, name: "Britannia Marie Gold Biscuits", category: "Bakery & Biscuit", price: 25, quantity: 18, size: "250 g", image: "img/5/2.png" },
+                    { id: 73, name: "Parle-G Original Biscuits", category: "Bakery & Biscuit", price: 20, quantity: 35, size: "250 g", image: "img/5/3.png" },
+                    { id: 74, name: "Britannia Bourbon Chocolate Biscuits", category: "Bakery & Biscuit", price: 30, quantity: 16, size: "150 g", image: "img/5/4.png" },
+                    { id: 75, name: "Sunfeast Dark Fantasy Choco Fills", category: "Bakery & Biscuit", price: 40, quantity: 0, size: "100 g", image: "img/5/5.png" },
+                    { id: 76, name: "Parle Hide & Seek Chocolate Chip Cookies", category: "Bakery & Biscuit", price: 30, quantity: 9, size: "120 g", image: "img/5/6.png" }
+                ];
+                
+                // Save to localStorage
+                localStorage.setItem("vendorInventory", JSON.stringify(inventory));
+                console.log("Saved", inventory.length, "items to localStorage");
+                
+                return true;
+            } catch (error) {
+                console.error("Error in resetInventoryToDefault:", error);
+                return false;
+            }
+        }
+        
+        // Confirm reset inventory
+        function confirmResetInventory() {
+            if (confirm('Are you sure you want to reset the inventory? This will delete all current inventory data.')) {
+                if (resetInventoryToDefault()) {
+                    // Update UI
+                    updateDashboardStats();
+                    renderInventoryTable();
+                    renderCategoryStockTable();
+                    renderCharts();
+                    
+                    // Show notification
+                    showNotification('Inventory reset to default values');
+                } else {
+                    alert('Failed to reset inventory. Please check the console for details.');
+                }
+            }
+        }
+        
+        // Show notification
+        function showNotification(message) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-success position-fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '9999';
+            notification.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i> ${message}
+                <button type="button" class="btn-close float-end" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            
+            // Add to document
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Render orders table
+        function renderOrdersTable() {
+            // Implementation of renderOrdersTable function
+        }
+    </script>
+</body>
+
+</html>

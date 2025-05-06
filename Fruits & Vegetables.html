@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buy Fruits & Vegetables Online</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background-color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header input[type="text"] {
+            padding: 6px 12px;
+            width: 300px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .cart-info {
+            cursor: pointer;
+            background-color: #f4f4f4;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            transition: background 0.2s ease;
+        }
+
+        .cart-info:hover {
+            background-color: #e0e0e0;
+        }
+
+        .main {
+            padding: 30px;
+        }
+
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            width: 200px;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.2s ease;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card img {
+            width: 100%;
+            height: 140px;
+            object-fit: contain;
+        }
+
+        .card .price {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .qty-btn {
+            background-color: white;
+            color: #28a745;
+            border: 2px solid #28a745;
+            padding: 4px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 4px;
+        }
+
+        .qty-btn:hover {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 350px;
+            background: white;
+            height: 100%;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        #cart-sidebar h3 {
+            margin: 0 0 10px;
+        }
+
+        #delivery-info {
+            background: #f2f2f2;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            gap: 10px;
+        }
+
+        .cart-item img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .cart-item .info {
+            flex-grow: 1;
+            font-size: 14px;
+        }
+
+        #cart-items {
+            max-height: calc(80px * 6);
+            overflow-y: auto;
+            flex-grow: 1;
+            margin-bottom: 10px;
+            padding-right: 5px;
+        }
+
+
+        #cart-items::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #cart-items::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        #cart-items::-webkit-scrollbar-thumb {
+            background: #bbb;
+            border-radius: 10px;
+        }
+
+        #cart-items::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
+
+        #cart-items {
+            scrollbar-width: thin;
+            scrollbar-color: #bbb #f1f1f1;
+        }
+
+        #cancel-policy {
+            font-size: 12px;
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+
+        #checkout-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 20px;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #checkout-bar button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .stock-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .in-stock {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .low-stock {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .out-of-stock {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h2><a href="home.html" style="text-decoration: none; color: inherit; cursor: pointer;">QuickMart</a></h2>
+        <input type="text" id="search" placeholder="Search products...">
+        <div class="cart-info" onclick="toggleCart()">🛒 My Cart (<span id="cart-count">0</span>)</div>
+    </header>
+
+    <div class="main">
+        <h1>Buy Fruits & Vegetables Online</h1>
+        <div class="products" id="products-container"></div>
+    </div>
+
+    <div id="cart-sidebar">
+        <h3>My Cart</h3>
+        <div id="delivery-info">🚀 Delivery in 8 minutes<br><small>Shipment of items</small></div>
+        <div id="cart-items"></div>
+
+        <div id="cart-summary">
+            <p><span>Items total</span><span>₹<span id="items-total">0</span></span></p>
+            <p><span>Delivery charge</span><span>₹25</span></p>
+            <p><span>Handling charge</span><span>₹9</span></p>
+            <p style="font-weight: bold; font-size: 16px;">
+                <span>Grand total</span>
+                <span>₹<span id="grand-total">0</span></span>
+            </p>
+        </div>
+
+        <div id="cancel-policy">
+            <strong>Cancellation Policy</strong><br>
+            Orders cannot be cancelled once packed. Refunds issued for unexpected delays.
+        </div>
+
+        <div id="checkout-bar">
+            <span><strong>₹<span id="checkout-total">0</span></strong> TOTAL</span>
+            <a href="LoginPage.html" target="_blank">
+                <button type="button">Login</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Base URL for API
+        const API_BASE_URL = 'http://localhost:5003/api';
+        
+        // Default products if API fails
+        const defaultProducts = [
+            { id: 1, name: 'Onion (Pyaz)', size: '0.95 - 1.05 kg', price: 30, image: 'img/2/1.png', quantity: 25 },
+            { id: 2, name: 'Potato (Aloo)', size: '1 kg', price: 32, image: 'img/2/2.png', quantity: 18 },
+            { id: 3, name: 'Tomato (Tamatar)', size: '500 g', price: 22, image: 'img/2/3.png', quantity: 12 },
+            { id: 4, name: 'Carrot (Gajar)', size: '500 g', price: 29, image: 'img/2/4.png', quantity: 8 },
+            { id: 5, name: 'Cauliflower (Phool Gobhi)', size: '400-600 g', price: 25, image: 'img/2/5.png', quantity: 5 },
+            { id: 6, name: 'Cabbage (Patta Gobhi)', size: '400-600 g', price: 21, image: 'img/2/6.png', quantity: 0 },
+            { id: 7, name: 'Lemon (Nimbu)', size: '250 g', price: 59, image: 'img/2/7.png', quantity: 3 },
+            { id: 8, name: 'Spinach (Palak)', size: '1 bunch', price: 32, image: 'img/2/8.png', quantity: 15 },
+            { id: 9, name: 'Green Chilli (Hari Mirch)', size: '100 g', price: 23, image: 'img/2/9.png', quantity: 20 },
+            { id: 10, name: 'Garlic (Lehsun)', size: '200 g', price: 41, image: 'img/2/10.png', quantity: 10 },
+            { id: 11, name: 'Banana', size: '4 pieces', price: 34, image: 'img/2/11.png', quantity: 25 },
+            { id: 12, name: 'Tender Coconut', size: '2 pieces', price: 170, image: 'img/2/12.png', quantity: 7 },
+            { id: 13, name: 'Grapes', size: '500 g', price: 94, image: 'img/2/13.png', quantity: 0 },
+            { id: 14, name: 'Watermelon', size: '1 piece', price: 86, image: 'img/2/14.png', quantity: 8 },
+            { id: 15, name: 'Small Shimla Apple', size: '500 g', price: 135, image: 'img/2/15.png', quantity: 14 },
+            { id: 16, name: 'Chikoo', size: '400-500 g', price: 44, image: 'img/2/16.png', quantity: 6 },
+            { id: 17, name: 'Papaya', size: '0.7-1.3 kg', price: 84, image: 'img/2/17.png', quantity: 9 },
+            { id: 18, name: 'Guava', size: '500-700 g', price: 87, image: 'img/2/18.png', quantity: 11 },
+            { id: 19, name: 'Safeda Mango', size: '2 pieces', price: 115, image: 'img/2/19.png', quantity: 0 },
+            { id: 20, name: 'Pineapple', size: '800-1000 g', price: 80, image: 'img/2/20.png', quantity: 7 },
+        ];
+        
+        // Products array to be used
+        let products = [];
+        let cart = JSON.parse(localStorage.getItem('cart')) || {};
+
+        // Load products when the page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadProducts();
+            renderProducts();
+            updateCart();
+            updateCartSidebar();
+        });
+
+        // Load products from API
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/products/category/Fruits & Vegetables`);
+                if (response.ok) {
+                    products = await response.json();
+                    console.log('Loaded products from API:', products);
+                } else {
+                    throw new Error('Failed to fetch products');
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                products = defaultProducts;
+                console.log('Using default products');
+            }
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function updateCart() {
+            const totalCount = Object.values(cart).reduce((acc, item) => acc + item.qty, 0);
+            document.getElementById('cart-count').textContent = totalCount;
+            saveCart();
+            
+            // Convert cart to cartItems array format for checkout
+            const cartItems = [];
+            for (const id in cart) {
+                const item = cart[id];
+                cartItems.push({
+                    productId: id,  // This is the important part - include the product ID
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.qty,
+                    image: item.image,
+                    size: item.size
+                });
+            }
+            
+            // Save as cartItems for checkout page
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        }
+
+        function updateCartSidebar() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const itemsTotalElem = document.getElementById('items-total');
+            const grandTotalElem = document.getElementById('grand-total');
+            const checkoutTotal = document.getElementById('checkout-total');
+
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+
+            for (let id in cart) {
+                const itemData = cart[id];
+                const price = itemData.price * itemData.qty;
+                total += price;
+
+                const item = document.createElement('div');
+                item.className = 'cart-item';
+                item.innerHTML = `
+                <img src="${itemData.image}" />
+                <div class="info">
+                    <div>${itemData.name}</div>
+                    <div style="color: gray; font-size: 13px;">${itemData.size}</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <button class="qty-btn" onclick="increaseQty('${id}')">+</button>
+                    <span>${itemData.qty}</span>
+                    <button class="qty-btn" onclick="decreaseQty('${id}')">-</button>
+                </div>
+            `;
+                cartItemsContainer.appendChild(item);
+            }
+
+            itemsTotalElem.textContent = total;
+            grandTotalElem.textContent = total + 25 + 9;
+            checkoutTotal.textContent = total + 25 + 9;
+        }
+
+        function toggleCart() {
+            const cartSidebar = document.getElementById('cart-sidebar');
+            cartSidebar.style.display = cartSidebar.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function increaseQty(id) {
+            const product = products.find(p => p.id.toString() === id.toString() || p._id === id);
+            
+            if (!product) return;
+            
+            // Check if item is in stock
+            if (product.quantity <= 0) {
+                alert("Sorry, this item is out of stock.");
+                return;
+            }
+            
+            // Check if adding more would exceed available stock
+            const currentQty = cart[id]?.qty || 0;
+            if (currentQty >= product.quantity) {
+                alert(`Sorry, only ${product.quantity} units available in stock.`);
+                return;
+            }
+
+            // Use MongoDB _id if available, otherwise fallback to local id
+            const productId = product._id || product.id.toString();
+
+            if (!cart[productId]) {
+                cart[productId] = {
+                    qty: 1,
+                    price: product.price,
+                    size: product.size || '',
+                    image: product.image,
+                    name: product.name
+                };
+            } else {
+                cart[productId].qty += 1;
+            }
+
+            updateCart();
+            updateCartSidebar();
+            renderProducts(document.getElementById('search').value);
+        }
+
+        function decreaseQty(id) {
+            if (cart[id]) {
+                cart[id].qty -= 1;
+                if (cart[id].qty <= 0) {
+                    delete cart[id];
+                }
+                updateCart();
+                updateCartSidebar();
+                renderProducts(document.getElementById('search').value);
+            }
+        }
+
+        function renderProducts(filter = '') {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            products
+                .filter(p => p.name.toLowerCase().includes(filter.toLowerCase()))
+                .forEach(product => {
+                    // Use MongoDB _id if available, otherwise fallback to local id
+                    const productId = product._id || product.id.toString();
+                    const quantity = cart[productId]?.qty || 0;
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    // Determine stock status based on MongoDB data or local data
+                    let stockStatus = 'In Stock';
+                    let statusClass = 'in-stock';
+                    
+                    if (product.stockStatus) {
+                        // Use MongoDB stockStatus if available
+                        stockStatus = product.stockStatus;
+                        statusClass = product.stockStatus.toLowerCase().replace(' ', '-');
+                    } else {
+                        // Fallback to quantity-based status
+                        if (product.quantity <= 0) {
+                            stockStatus = 'Out of Stock';
+                            statusClass = 'out-of-stock';
+                        } else if (product.quantity < 10) {
+                            stockStatus = 'Low Stock';
+                            statusClass = 'low-stock';
+                        }
+                    }
+                    
+                    // Disable add button if out of stock
+                    const addBtnDisabled = (product.quantity <= 0 || stockStatus === 'Out of Stock') 
+                        ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : '';
+                    
+                    card.innerHTML = `
+                    <span class="stock-badge ${statusClass}">${stockStatus}</span>
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>${product.size || ''}</p>
+                    <div class="price">₹${product.price}</div>
+                    <div>
+                        <button class="qty-btn" onclick="decreaseQty('${productId}')">-</button>
+                        <span>${quantity}</span>
+                        <button class="qty-btn" onclick="increaseQty('${productId}')" ${addBtnDisabled}>+</button>
+                    </div>
+                `;
+                    container.appendChild(card);
+                });
+        }
+
+        document.getElementById('search').addEventListener('input', e => {
+            renderProducts(e.target.value);
+        });
+
+        document.addEventListener('click', function (event) {
+            const cartSidebar = document.getElementById('cart-sidebar');
+            const cartButton = document.querySelector('.cart-info');
+            const isInsideCart = cartSidebar.contains(event.target);
+            const isCartButton = cartButton.contains(event.target);
+            const isQtyBtn = event.target.classList.contains('qty-btn');
+
+            if (cartSidebar.style.display === 'block' && !isInsideCart && !isCartButton && !isQtyBtn) {
+                cartSidebar.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>
